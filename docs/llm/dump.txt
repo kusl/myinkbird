@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-08T16:30:25-04:00
+  Generated at   : 2026-07-08T16:47:13-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/mypython/myinkbird
   Branch         : main
-  Commit (full)  : 9ce0ea203e091eda50aab46950fbc6a643f42d60
-  Commit (short) : 9ce0ea2
-  Commit date    : 2026-07-08 16:23:10 -0400
-  Commit message : initialize repository
+  Commit (full)  : d35ee4cd72f56c3d2233faf220450777851b4f04
+  Commit (short) : d35ee4c
+  Commit date    : 2026-07-08 16:30:37 -0400
+  Commit message : run dump
   Remote origin  : none
   Files included : 1
   Excluded path  : docs/llm/
@@ -28,7 +28,8 @@ REPOSITORY METADATA
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
-?? docs/llm/vendor/output.txt
+ M docs/llm/vendor/output.txt
+?? docs/llm/vendor/claude-0001.md
 
 ################################################################################
 # FILE: export.sh  [THIS SCRIPT — included for full context]
@@ -836,7 +837,7 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
   Files dumped   : 1
   Total size     : 16.6 KiB (17022 bytes)
   Output file    : /home/kushal/src/mypython/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-08T16:30:25-04:00
+  Completed at   : 2026-07-08T16:47:13-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
