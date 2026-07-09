@@ -87,7 +87,7 @@ a substring of its advertised name (`ith-13-b` by default).
                     │  ./data/readings/YYYY-MM-DD.ndjson   (on the host)
                     ▼
         ┌───────────────────────────┐
-        │  host dir  ./data          │  bind-mounted into both containers
+        │  host dir  ./data         │  bind-mounted into both containers
         └───────────┬───────────────┘
                     │  git add / commit on an interval (never pushed)
                     ▼
