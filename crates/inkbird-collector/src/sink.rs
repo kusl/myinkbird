@@ -25,6 +25,9 @@ pub struct VecSink {
     pub readings: Vec<StoredReading>,
 }
 
+// The inherent helpers below are exercised only by the unit tests; the release
+// binary uses `VecSink` solely through the `ReadingSink` trait.
+#[cfg_attr(not(test), allow(dead_code))]
 impl VecSink {
     /// Create an empty sink.
     #[must_use]

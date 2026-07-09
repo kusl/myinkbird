@@ -48,6 +48,6 @@ mod parser;
 
 pub use model::{ParseError, SensorReading};
 pub use parser::{
-    build_message, looks_like_ith_13_b, parse_ith_13_b, parse_manufacturer_entry,
     INKBIRD_SERVICE_UUID_16, ITH_13_B_LOCAL_NAME, ITH_13_B_MESSAGE_LEN, MIN_MESSAGE_LEN,
+    build_message, looks_like_ith_13_b, parse_ith_13_b, parse_manufacturer_entry,
 };

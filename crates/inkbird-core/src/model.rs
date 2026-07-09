@@ -49,7 +49,7 @@ impl SensorReading {
 ///
 /// A validation failure rejects the **entire** reading rather than publishing
 /// a partially-corrupt one, matching the reference INKBIRD parser.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, Copy, PartialEq, Error)]
 pub enum ParseError {
     /// The message was shorter than the minimum needed to read every field.
     #[error("message too short: need at least {need} bytes, got {got}")]

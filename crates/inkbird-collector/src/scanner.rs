@@ -6,27 +6,27 @@
 //! [`ReadingSink`]. Never opening a GATT connection is what protects the
 //! sensor's battery (see docs/adr/0003).
 //!
-//! A note on "passive": `btleplug` drives BlueZ's classic `StartDiscovery`,
+//! A note on "passive": `btleplug` drives `BlueZ`'s classic `StartDiscovery`,
 //! which is an *active* scan at the controller level (the adapter may emit
 //! `SCAN_REQ`). That is a property of the scanner's radio, not the sensor, and
 //! costs the sensor effectively nothing. True controller-level passive
-//! scanning would require BlueZ's `AdvertisementMonitor` API, which `btleplug`
+//! scanning would require `BlueZ`'s `AdvertisementMonitor` API, which `btleplug`
 //! does not use today; see docs/bluetooth.md and docs/adr/0003.
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as _;
 use std::time::{Duration, Instant};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use btleplug::api::{Central as _, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
 use btleplug::platform::{Adapter, Manager, PeripheralId};
 use futures::StreamExt;
-use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
+use time::format_description::well_known::Rfc3339;
 use tokio::time::sleep;
 use tracing::{debug, info, warn};
 
-use inkbird_core::{build_message, parse_ith_13_b, SensorReading, ITH_13_B_MESSAGE_LEN};
+use inkbird_core::{ITH_13_B_MESSAGE_LEN, SensorReading, build_message, parse_ith_13_b};
 
 use crate::config::Config;
 use crate::record::StoredReading;
@@ -34,7 +34,7 @@ use crate::shutdown::shutdown_signal;
 use crate::sink::ReadingSink;
 use crate::throttle::Throttle;
 
-/// Acquire the first available Bluetooth adapter via the host BlueZ stack.
+/// Acquire the first available Bluetooth adapter via the host `BlueZ` stack.
 ///
 /// # Errors
 ///
@@ -42,9 +42,9 @@ use crate::throttle::Throttle;
 /// running or the D-Bus system socket is not reachable from inside the
 /// container) or if the host has no Bluetooth adapter.
 pub async fn get_central() -> Result<Adapter> {
-    let manager = Manager::new()
-        .await
-        .context("creating BLE manager (is bluetoothd running and the D-Bus system socket mounted?)")?;
+    let manager = Manager::new().await.context(
+        "creating BLE manager (is bluetoothd running and the D-Bus system socket mounted?)",
+    )?;
     let adapters = manager
         .adapters()
         .await
@@ -100,7 +100,7 @@ pub async fn run_collect(
                     }
                 }
             }
-            _ = &mut shutdown => {
+            () = &mut shutdown => {
                 info!("shutdown requested; stopping scan");
                 break;
             }
@@ -209,7 +209,10 @@ pub async fn run_discover(central: &Adapter, seconds: u64) -> Result<()> {
         .start_scan(ScanFilter::default())
         .await
         .context("starting BLE scan")?;
-    info!(seconds, "discovering BLE devices; press Ctrl-C to stop early");
+    info!(
+        seconds,
+        "discovering BLE devices; press Ctrl-C to stop early"
+    );
 
     let mut seen: HashSet<String> = HashSet::new();
     let deadline = sleep(Duration::from_secs(seconds));
@@ -227,8 +230,8 @@ pub async fn run_discover(central: &Adapter, seconds: u64) -> Result<()> {
                     }
                 }
             }
-            _ = &mut deadline => break,
-            _ = &mut shutdown => break,
+            () = &mut deadline => break,
+            () = &mut shutdown => break,
         }
     }
 

@@ -237,7 +237,10 @@ mod tests {
         let le = 1000u16.to_le_bytes(); // exactly 100.0 %
         ok[8] = le[0];
         ok[9] = le[1];
-        assert!(approx(parse_ith_13_b(&ok).unwrap().humidity_pct.unwrap(), 100.0));
+        assert!(approx(
+            parse_ith_13_b(&ok).unwrap().humidity_pct.unwrap(),
+            100.0
+        ));
 
         let mut bad = good_message();
         let le = 1001u16.to_le_bytes(); // 100.1 %

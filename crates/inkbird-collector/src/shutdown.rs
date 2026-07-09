@@ -8,7 +8,7 @@ use tracing::warn;
 /// Completes on the first shutdown signal (Ctrl-C or, on Unix, SIGTERM).
 #[cfg(unix)]
 pub async fn shutdown_signal() {
-    use tokio::signal::unix::{signal, SignalKind};
+    use tokio::signal::unix::{SignalKind, signal};
 
     let mut sigterm = match signal(SignalKind::terminate()) {
         Ok(s) => s,

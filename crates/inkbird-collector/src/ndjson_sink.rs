@@ -37,9 +37,8 @@ impl NdjsonSink {
 
 impl ReadingSink for NdjsonSink {
     fn record(&mut self, reading: &StoredReading) -> anyhow::Result<()> {
-        fs::create_dir_all(&self.readings_dir).with_context(|| {
-            format!("creating readings dir {}", self.readings_dir.display())
-        })?;
+        fs::create_dir_all(&self.readings_dir)
+            .with_context(|| format!("creating readings dir {}", self.readings_dir.display()))?;
 
         let path = self.file_for(reading.date_key());
         let mut line = serde_json::to_string(reading).context("serializing reading")?;

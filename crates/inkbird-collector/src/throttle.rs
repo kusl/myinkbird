@@ -26,7 +26,9 @@ struct Snapshot {
 impl Snapshot {
     fn new(temp_c: Option<f64>, hum_pct: Option<f64>, battery: Option<u8>) -> Self {
         // Round to the nearest tenth; the decoder already yields tenths so this
-        // is exact in practice and merely defensive.
+        // is exact in practice and merely defensive. Values are tiny (tenths of
+        // a degree/percent), so the f64 -> i32 cast cannot realistically truncate.
+        #[allow(clippy::cast_possible_truncation)]
         let to_tenths = |v: f64| (v * 10.0).round() as i32;
         Self {
             temp_tenths: temp_c.map(to_tenths),

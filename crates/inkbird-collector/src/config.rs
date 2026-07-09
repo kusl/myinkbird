@@ -4,10 +4,10 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-use clap::Args;
+use clap::Parser;
 
 /// Arguments for the `collect` subcommand (the default mode).
-#[derive(Debug, Clone, Args)]
+#[derive(Debug, Clone, Parser)]
 pub struct CollectArgs {
     /// Directory the readings are written under (`<dir>/readings/*.ndjson`).
     #[arg(long, env = "INKBIRD_DATA_DIR", default_value = "./data")]
