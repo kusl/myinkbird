@@ -1,0 +1,49 @@
+# Slim CI: the workflow only checks out the code, restores a cache, and calls
+# bash scripts that hold the real logic. This keeps the pipeline reproducible
+# locally (run ./scripts/ci.sh) and provider-agnostic. See docs/adr/0008.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least-privilege: this workflow only needs to read the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: lint, build, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+      - run: ./scripts/ci.sh
+
+  supply-chain:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+          key: deny-${{ runner.os }}-${{ hashFiles('**/Cargo.toml', 'deny.toml') }}
+          restore-keys: deny-${{ runner.os }}-
+      - run: ./scripts/deny.sh

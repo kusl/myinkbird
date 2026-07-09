@@ -1,0 +1,17 @@
+# Rust build output
+/target
+**/*.rs.bk
+
+# Cargo lock is committed for the binary workspace (kept, not ignored).
+
+# Local data produced by a non-container run of the collector
+/data
+
+# LLM context dumps produced by export.sh (never committed)
+/docs/llm/
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+.DS_Store
