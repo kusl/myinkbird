@@ -1,0 +1,11 @@
+# Containerfile for the committer sidecar: it periodically commits the NDJSON
+# data directory to a *local* git repository (never pushing). See docs/adr/0006.
+
+FROM registry.fedoraproject.org/fedora-minimal:latest
+
+RUN microdnf install -y git && microdnf clean all
+
+COPY scripts/commit-loop.sh /usr/local/bin/commit-loop.sh
+RUN chmod +x /usr/local/bin/commit-loop.sh
+
+ENTRYPOINT ["/usr/local/bin/commit-loop.sh"]

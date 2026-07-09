@@ -1,0 +1,42 @@
+# inkbird-collector: the runnable binary. It listens for ITH-13-B BLE
+# advertisements (never connecting - see docs/adr/0003), decodes them with
+# inkbird-core, and appends validated readings to a daily NDJSON file under
+# the data directory. A `discover` subcommand helps identify a device's
+# Bluetooth address and verify its byte layout.
+
+[package]
+name = "inkbird-collector"
+description = "Passive BLE listener that logs INKBIRD ITH-13-B readings to NDJSON"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "inkbird-collector"
+path = "src/main.rs"
+
+[dependencies]
+inkbird-core.workspace = true
+btleplug.workspace = true
+tokio.workspace = true
+futures.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+time.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }

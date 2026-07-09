@@ -1,0 +1,24 @@
+# inkbird-core: pure, dependency-light decoding of INKBIRD ITH-13-B BLE
+# advertisements. No I/O, no async, no Bluetooth, no serde - just bytes in,
+# a validated `SensorReading` out. This makes the decode logic trivially
+# unit-testable and reusable (see docs/adr/0002).
+
+[package]
+name = "inkbird-core"
+description = "Pure decoder for INKBIRD ITH-13-B BLE advertisements"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }

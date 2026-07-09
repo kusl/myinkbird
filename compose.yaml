@@ -1,0 +1,47 @@
+# Compose Specification file. Works with `podman compose` (the Compose plugin)
+# and with `podman-compose`.
+#
+# There is deliberately no `build:` section: images are built beforehand by
+# scripts/container-build.sh with `podman build`. This keeps the stack
+# vendor-neutral and keeps any proprietary build-file naming out of this file.
+#
+# Launch this stack rootful (`sudo podman compose up -d`, or use
+# scripts/run.sh): BlueZ's D-Bus policy only accepts calls from uid 0. See
+# docs/adr/0005 and docs/bluetooth.md.
+
+services:
+  collector:
+    image: localhost/myinkbird-collector:latest
+    # Fedora/SELinux: allow the bind-mounted D-Bus socket to be used by the
+    # container process. See docs/bluetooth.md.
+    security_opt:
+      - label=disable
+    volumes:
+      # Talk to the host bluetoothd over the system D-Bus socket (listen-only;
+      # we never open a GATT connection - see docs/adr/0003).
+      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+      - inkbird-data:/data
+    environment:
+      RUST_LOG: ${RUST_LOG:-info}
+      INKBIRD_DATA_DIR: /data
+      # Set INKBIRD_ADDRESS to your sensor's Bluetooth address for reliable
+      # matching (find it with `discover`). Empty = match by name instead.
+      INKBIRD_ADDRESS: ${INKBIRD_ADDRESS:-}
+      INKBIRD_NAME_MATCH: ${INKBIRD_NAME_MATCH:-ith-13-b}
+      INKBIRD_MIN_INTERVAL_SECS: ${INKBIRD_MIN_INTERVAL_SECS:-60}
+    restart: unless-stopped
+
+  committer:
+    image: localhost/myinkbird-committer:latest
+    volumes:
+      - inkbird-data:/data
+    environment:
+      GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-myinkbird}
+      GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-myinkbird@localhost}
+      COMMIT_INTERVAL_SECS: ${COMMIT_INTERVAL_SECS:-300}
+    depends_on:
+      - collector
+    restart: unless-stopped
+
+volumes:
+  inkbird-data:

@@ -1,0 +1,71 @@
+# Cargo workspace root for myinkbird.
+#
+# Two crates:
+#   * inkbird-core      - pure, I/O-free decoding of ITH-13-B advertisements.
+#   * inkbird-collector - the BLE listener + NDJSON writer binary.
+#
+# Dependency versions are pinned here in [workspace.dependencies] and inherited
+# by the member crates with `name.workspace = true`. This keeps a single source
+# of truth for versions across the workspace (see docs/adr/0009).
+
+[workspace]
+resolver = "3"
+members = [
+    "crates/inkbird-core",
+    "crates/inkbird-collector",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/kusl/myinkbird"
+authors = ["myinkbird contributors"]
+
+[workspace.dependencies]
+# Local crate.
+inkbird-core = { path = "crates/inkbird-core" }
+
+# Error handling.
+thiserror = "2"
+anyhow = "1"
+
+# Async runtime + streams.
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "signal",
+    "time",
+    "sync",
+] }
+futures = "0.3"
+
+# Bluetooth Low Energy. Permissive licence (MIT/Apache-2.0/BSD-3-Clause),
+# talks to the host BlueZ stack over D-Bus on Linux. See docs/adr/0002.
+btleplug = "0.12"
+
+# Logging / diagnostics.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# Serialization for the NDJSON records.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Timestamps (RFC 3339, UTC).
+time = { version = "0.3", features = ["std", "formatting", "macros"] }
+
+# Command-line parsing.
+clap = { version = "4", features = ["derive", "env"] }
+
+# Test-only temp directories.
+tempfile = "3"
+
+# Release profile: small, fast binary for the container image.
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"

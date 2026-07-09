@@ -1,0 +1,6 @@
+# Pin the toolchain channel so everyone (and CI) builds with the same Rust.
+# "stable" tracks the latest stable release, matching the project's
+# always-latest policy (docs/adr/0009). Edition 2024 needs Rust >= 1.85.
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
