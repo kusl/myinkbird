@@ -1,64 +1,15 @@
-kushal@fedora:~/src/golang/GoTunnels$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
+00
+92
+100
 
-real	0m0.103s
-user	0m0.041s
-sys	0m0.054s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
+1 the application doesn't work / I can't figure out how to make it work 
+2 the application should save the logs not within the container but in a file visible to the git repository 
+3 if script requires sudo, ask for it upfront and "keep it alive" as long as the script is running 
+4 always create / update documentation when changing code 
+5 cargo deny is still failing 
 
-real	0m0.131s
-user	0m0.035s
-sys	0m0.058s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-export.sh: wrote 48 files to docs/llm/dump.txt
+details: 
 
-real	0m0.096s
-user	0m0.040s
-sys	0m0.050s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.559s
-user	0m0.757s
-sys	0m0.926s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.604s
-user	0m0.758s
-sys	0m1.058s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.608s
-user	0m0.791s
-sys	0m1.008s
-kushal@fedora:~/src/mypython/myinkbird$ time rustfmt
-
-
-
-^C
-real	6m38.924s
-user	0m0.014s
-sys	0m0.055s
-
-kushal@fedora:~/src/mypython/myinkbird$ 
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/mypython/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.757s
-user	0m0.782s
-sys	0m1.136s
-kushal@fedora:~/src/mypython/myinkbird$ cd ~/src/rust/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.670s
-user	0m0.763s
-sys	0m1.073s
-kushal@fedora:~/src/rust/myinkbird$ cd ~/src/rust/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.768s
-user	0m0.769s
-sys	0m1.064s
-kushal@fedora:~/src/rust/myinkbird$ cd ~/src/rust/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
-
-real	0m1.676s
-user	0m0.755s
-sys	0m1.058s
 kushal@fedora:~/src/rust/myinkbird$ cd ~/src/rust/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt; time systemctl status bluetooth; time bash scripts/container-build.sh; time bash scripts/run.sh;
 
 real	0m1.669s
@@ -851,3 +802,451 @@ real	0m5.789s
 user	0m0.133s
 sys	0m0.089s
 kushal@fedora:~/src/rust/myinkbird$ 
+
+cargo-deny
+failed 14 minutes ago in 2m 18s 
+Run ./scripts/deny.sh
+[myinkbird] installing cargo-deny
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded cargo-deny v0.19.9
+  Installing cargo-deny v0.19.9
+warning: default toolchain implicitly overridden with `stable-x86_64-unknown-linux-gnu` by rustup toolchain file
+  |
+  = help: use `cargo +stable install` if you meant to use the stable toolchain
+  = note: rustup selects the toolchain based on the parent environment and not the environment of the package being installed
+    Updating crates.io index
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded anstream v1.0.0
+  Downloaded shlex v1.3.0
+  Downloaded smol_str v0.3.2
+  Downloaded smallvec v1.15.1
+  Downloaded stable_deref_trait v1.2.1
+  Downloaded aho-corasick v1.1.4
+  Downloaded version_check v0.9.5
+  Downloaded allocator-api2 v0.2.21
+  Downloaded form_urlencoded v1.2.2
+  Downloaded cpufeatures v0.2.17
+  Downloaded anstyle-parse v1.0.0
+  Downloaded codespan v0.13.1
+  Downloaded anstyle v1.0.14
+  Downloaded crossbeam v0.8.4
+  Downloaded tinyvec_macros v0.1.1
+  Downloaded scroll_derive v0.13.1
+  Downloaded strum v0.28.0
+  Downloaded generic-array v0.14.7
+  Downloaded heck v0.5.0
+  Downloaded is_terminal_polyfill v1.70.2
+  Downloaded crossbeam-queue v0.3.12
+  Downloaded utf8_iter v1.0.4
+  Downloaded untrusted v0.9.0
+  Downloaded yoke-derive v0.8.2
+  Downloaded utf8parse v0.2.2
+  Downloaded idna_adapter v1.2.2
+  Downloaded percent-encoding v2.3.2
+  Downloaded funty v2.0.0
+  Downloaded zerofrom-derive v0.1.7
+  Downloaded zerofrom v0.1.8
+  Downloaded wyz v0.5.1
+  Downloaded block-buffer v0.10.4
+  Downloaded radium v0.7.0
+  Downloaded home v0.5.12
+  Downloaded anstyle-query v1.1.5
+  Downloaded target-lexicon v0.13.3
+  Downloaded thiserror-impl v2.0.18
+  Downloaded potential_utf v0.1.5
+  Downloaded cfg-if v1.0.4
+  Downloaded zmij v1.0.21
+  Downloaded zerovec-derive v0.11.3
+  Downloaded zstd v0.13.3
+  Downloaded itoa v1.0.18
+  Downloaded either v1.16.0
+  Downloaded displaydoc v0.2.5
+  Downloaded zstd-safe v7.2.4
+  Downloaded thiserror v2.0.18
+  Downloaded unicode-ident v1.0.24
+  Downloaded toml-span v0.7.1
+  Downloaded tinyvec v1.11.0
+  Downloaded url v2.5.8
+  Downloaded scroll v0.13.0
+  Downloaded rustc-stable-hash v0.1.2
+  Downloaded pkg-config v0.3.33
+  Downloaded sha2 v0.10.9
+  Downloaded zerotrie v0.2.4
+  Downloaded typenum v1.20.0
+  Downloaded crossbeam-utils v0.8.21
+  Downloaded zerovec v0.11.6
+  Downloaded nu-ansi-term v0.50.3
+  Downloaded cfg-expr v0.20.7
+  Downloaded parking_lot_core v0.9.12
+  Downloaded parking_lot v0.12.5
+  Downloaded getrandom v0.2.17
+  Downloaded litemap v0.8.2
+  Downloaded proc-macro2 v1.0.106
+  Downloaded serde_derive v1.0.228
+  Downloaded unicode-width v0.2.2
+  Downloaded serde_core v1.0.228
+  Downloaded syn v2.0.117
+  Downloaded rayon-core v1.13.0
+  Downloaded log v0.4.29
+  Downloaded memchr v2.8.0
+  Downloaded icu_locale_core v2.2.0
+  Downloaded serde v1.0.228
+  Downloaded http v1.4.0
+  Downloaded cc v1.2.62
+  Downloaded bytes v1.11.1
+  Downloaded borsh v1.6.1
+  Downloaded idna v1.1.0
+  Downloaded hashbrown v0.15.5
+  Downloaded serde_json v1.0.150
+  Downloaded rayon v1.12.0
+  Downloaded icu_properties_data v2.2.0
+  Downloaded hashbrown v0.17.1
+  Downloaded bitvec v1.0.1
+  Downloaded clap_builder v4.6.0
+  Downloaded goblin v0.10.5
+  Downloaded zstd-sys v2.0.16+zstd.1.5.7
+  Downloaded regex v1.12.3
+  Downloaded fern v0.7.1
+  Downloaded indexmap v2.14.0
+  Downloaded regex-syntax v0.8.10
+  Downloaded bstr v1.12.1
+  Downloaded icu_normalizer_data v2.2.0
+  Downloaded icu_collections v2.2.0
+  Downloaded crossbeam-channel v0.5.15
+  Downloaded krates v0.21.2
+  Downloaded icu_normalizer v2.2.0
+  Downloaded anyhow v1.0.102
+  Downloaded clap v4.6.1
+  Downloaded icu_provider v2.2.0
+  Downloaded icu_properties v2.2.0
+  Downloaded codespan-reporting v0.13.1
+  Downloaded camino v1.2.2
+  Downloaded unicode-normalization v0.1.25
+  Downloaded semver v1.0.28
+  Downloaded regex-automata v0.4.14
+  Downloaded memmap2 v0.9.10
+  Downloaded jiff v0.2.24
+  Downloaded crossbeam-epoch v0.9.18
+  Downloaded clap_derive v4.6.1
+  Downloaded tame-index v0.26.3
+  Downloaded globset v0.4.18
+  Downloaded lock_api v0.4.14
+  Downloaded petgraph v0.8.1
+  Downloaded digest v0.10.7
+  Downloaded quote v1.0.45
+  Downloaded jobserver v0.1.34
+  Downloaded libc v0.2.186
+  Downloaded foldhash v0.1.5
+  Downloaded crypto-common v0.1.7
+  Downloaded clap_lex v1.1.0
+  Downloaded yoke v0.8.2
+  Downloaded twox-hash v2.1.2
+  Downloaded strum_macros v0.28.0
+  Downloaded fixedbitset v0.5.7
+  Downloaded find-msvc-tools v0.1.9
+  Downloaded equivalent v1.0.2
+  Downloaded colorchoice v1.0.5
+  Downloaded crossbeam-deque v0.8.6
+  Downloaded writeable v0.6.3
+  Downloaded tap v1.0.1
+  Downloaded walkdir v2.5.0
+  Downloaded termcolor v1.4.1
+  Downloaded tinystr v0.8.3
+  Downloaded strsim v0.11.1
+  Downloaded synstructure v0.13.2
+  Downloaded scopeguard v1.2.0
+  Downloaded same-file v1.0.6
+  Downloaded plain v0.2.3
+  Downloaded cfg_aliases v0.2.1
+  Downloaded ring v0.17.14
+  Downloaded spdx v0.13.4
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling libc v0.2.186
+   Compiling stable_deref_trait v1.2.1
+   Compiling serde_core v1.0.228
+   Compiling shlex v1.3.0
+   Compiling smallvec v1.15.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling crossbeam-utils v0.8.21
+   Compiling memchr v2.8.0
+   Compiling syn v2.0.117
+   Compiling jobserver v0.1.34
+   Compiling cc v1.2.62
+   Compiling version_check v0.9.5
+   Compiling serde v1.0.228
+   Compiling generic-array v0.14.7
+   Compiling litemap v0.8.2
+   Compiling pkg-config v0.3.33
+   Compiling writeable v0.6.3
+   Compiling typenum v1.20.0
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling cfg-if v1.0.4
+   Compiling icu_properties_data v2.2.0
+   Compiling utf8_iter v1.0.4
+   Compiling icu_normalizer_data v2.2.0
+   Compiling crossbeam-epoch v0.9.18
+   Compiling synstructure v0.13.2
+   Compiling zmij v1.0.21
+   Compiling crossbeam-deque v0.8.6
+   Compiling aho-corasick v1.1.4
+   Compiling unicode-width v0.2.2
+   Compiling serde_json v1.0.150
+   Compiling rayon-core v1.13.0
+   Compiling zstd-safe v7.2.4
+   Compiling termcolor v1.4.1
+   Compiling target-lexicon v0.13.3
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerovec-derive v0.11.3
+   Compiling zerofrom v0.1.8
+   Compiling yoke v0.8.2
+   Compiling displaydoc v0.2.5
+   Compiling serde_derive v1.0.228
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling icu_locale_core v2.2.0
+   Compiling icu_collections v2.2.0
+   Compiling utf8parse v0.2.2
+   Compiling itoa v1.0.18
+   Compiling camino v1.2.2
+   Compiling heck v0.5.0
+   Compiling icu_provider v2.2.0
+   Compiling regex-syntax v0.8.10
+   Compiling equivalent v1.0.2
+   Compiling icu_properties v2.2.0
+   Compiling codespan-reporting v0.13.1
+   Compiling icu_normalizer v2.2.0
+   Compiling regex-automata v0.4.14
+   Compiling anstyle-parse v1.0.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling tinyvec_macros v0.1.1
+   Compiling colorchoice v1.0.5
+   Compiling foldhash v0.1.5
+   Compiling log v0.4.29
+   Compiling radium v0.7.0
+   Compiling anstyle-query v1.1.5
+   Compiling allocator-api2 v0.2.21
+   Compiling is_terminal_polyfill v1.70.2
+   Compiling parking_lot_core v0.9.12
+   Compiling hashbrown v0.17.1
+   Compiling thiserror v2.0.18
+   Compiling anstyle v1.0.14
+   Compiling anstream v1.0.0
+   Compiling indexmap v2.14.0
+   Compiling hashbrown v0.15.5
+   Compiling tinyvec v1.11.0
+   Compiling digest v0.10.7
+   Compiling idna_adapter v1.2.2
+   Compiling scroll_derive v0.13.1
+   Compiling thiserror-impl v2.0.18
+   Compiling ring v0.17.14
+   Compiling semver v1.0.28
+   Compiling percent-encoding v2.3.2
+   Compiling tap v1.0.1
+   Compiling strsim v0.11.1
+   Compiling bytes v1.11.1
+   Compiling fixedbitset v0.5.7
+   Compiling scopeguard v1.2.0
+   Compiling cpufeatures v0.2.17
+   Compiling either v1.16.0
+   Compiling clap_lex v1.1.0
+   Compiling anyhow v1.0.102
+   Compiling rayon v1.12.0
+   Compiling clap_builder v4.6.0
+   Compiling http v1.4.0
+   Compiling sha2 v0.10.9
+   Compiling lock_api v0.4.14
+   Compiling petgraph v0.8.1
+   Compiling wyz v0.5.1
+   Compiling form_urlencoded v1.2.2
+   Compiling scroll v0.13.0
+   Compiling idna v1.1.0
+   Compiling cfg-expr v0.20.7
+   Compiling unicode-normalization v0.1.25
+   Compiling regex v1.12.3
+   Compiling toml-span v0.7.1
+   Compiling smol_str v0.3.2
+   Compiling strum_macros v0.28.0
+   Compiling clap_derive v4.6.1
+   Compiling getrandom v0.2.17
+   Compiling crossbeam-channel v0.5.15
+   Compiling crossbeam-queue v0.3.12
+   Compiling bstr v1.12.1
+   Compiling twox-hash v2.1.2
+   Compiling plain v0.2.3
+   Compiling untrusted v0.9.0
+   Compiling funty v2.0.0
+   Compiling rustc-stable-hash v0.1.2
+   Compiling same-file v1.0.6
+   Compiling walkdir v2.5.0
+   Compiling bitvec v1.0.1
+   Compiling tame-index v0.26.3
+   Compiling globset v0.4.18
+   Compiling goblin v0.10.5
+   Compiling clap v4.6.1
+   Compiling crossbeam v0.8.4
+   Compiling strum v0.28.0
+   Compiling parking_lot v0.12.5
+   Compiling krates v0.21.2
+   Compiling url v2.5.8
+   Compiling fern v0.7.1
+   Compiling codespan v0.13.1
+   Compiling memmap2 v0.9.10
+   Compiling home v0.5.12
+   Compiling jiff v0.2.24
+   Compiling nu-ansi-term v0.50.3
+   Compiling zstd v0.13.3
+   Compiling spdx v0.13.4
+   Compiling cargo-deny v0.19.9
+    Finished `release` profile [optimized] target(s) in 2m 06s
+  Installing /home/runner/.cargo/bin/cargo-deny
+   Installed package `cargo-deny v0.19.9` (executable `cargo-deny`)
+[myinkbird] running cargo-deny checks (advisories, bans, licenses, sources)
+bug[unresolved-workspace-dependency]: failed to resolve a workspace dependency
+   ┌─ /home/runner/work/myinkbird/myinkbird/crates/inkbird-collector/Cargo.toml:22:26
+   │
+22 │ inkbird-core.workspace = true
+   │                          ━━━━
+   │                          │
+   │                          usage of workspace dependency
+   │
+   ├ inkbird-collector v0.1.0
+
+warning[wildcard]: found 1 wildcard dependency for crate 'inkbird-collector'
+   ┌─ /home/runner/work/myinkbird/myinkbird/crates/inkbird-collector/Cargo.toml:22:26
+   │
+22 │ inkbird-core.workspace = true
+   │                          ━━━━ wildcard dependency
+   │
+   ├ inkbird-collector v0.1.0
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:29:6
+   │
+29 │     "0BSD",
+   │      ━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:20:6
+   │
+20 │     "AGPL-3.0",
+   │      ━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:25:6
+   │
+25 │     "BSD-2-Clause",
+   │      ━━━━━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:31:6
+   │
+31 │     "CC0-1.0",
+   │      ━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:27:6
+   │
+27 │     "ISC",
+   │      ━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:30:6
+   │
+30 │     "MPL-2.0",
+   │      ━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:33:6
+   │
+33 │     "Unicode-DFS-2016",
+   │      ━━━━━━━━━━━━━━━━ unmatched license allowance
+
+warning[license-not-encountered]: license was not encountered
+   ┌─ /home/runner/work/myinkbird/myinkbird/deny.toml:28:6
+   │
+28 │     "Zlib",
+   │      ━━━━ unmatched license allowance
+
+warning[duplicate]: found 2 duplicate entries for crate 'thiserror'
+   ┌─ /home/runner/work/myinkbird/myinkbird/Cargo.lock:96:1
+   │  
+96 │ ╭ thiserror 1.0.69 registry+https://github.com/rust-lang/crates.io-index
+97 │ │ thiserror 2.0.18 registry+https://github.com/rust-lang/crates.io-index
+   │ ╰──────────────────────────────────────────────────────────────────────┘ lock entries
+   │  
+   ├ thiserror v1.0.69
+     └── jni v0.19.0
+         └── btleplug v0.12.0
+             └── inkbird-collector v0.1.0
+   ├ thiserror v2.0.18
+     ├── bluez-async v0.8.2
+     │   └── btleplug v0.12.0
+     │       └── inkbird-collector v0.1.0
+     ├── btleplug v0.12.0 (*)
+     ├── inkbird-core v0.1.0
+     │   └── inkbird-collector v0.1.0 (*)
+     └── serde-xml-rs v0.8.2
+         └── bluez-async v0.8.2 (*)
+
+warning[duplicate]: found 2 duplicate entries for crate 'thiserror-impl'
+   ┌─ /home/runner/work/myinkbird/myinkbird/Cargo.lock:98:1
+   │  
+98 │ ╭ thiserror-impl 1.0.69 registry+https://github.com/rust-lang/crates.io-index
+99 │ │ thiserror-impl 2.0.18 registry+https://github.com/rust-lang/crates.io-index
+   │ ╰───────────────────────────────────────────────────────────────────────────┘ lock entries
+   │  
+   ├ thiserror-impl v1.0.69
+     └── thiserror v1.0.69
+         └── jni v0.19.0
+             └── btleplug v0.12.0
+                 └── inkbird-collector v0.1.0
+   ├ thiserror-impl v2.0.18
+     └── thiserror v2.0.18
+         ├── bluez-async v0.8.2
+         │   └── btleplug v0.12.0
+         │       └── inkbird-collector v0.1.0
+         ├── btleplug v0.12.0 (*)
+         ├── inkbird-core v0.1.0
+         │   └── inkbird-collector v0.1.0 (*)
+         └── serde-xml-rs v0.8.2
+             └── bluez-async v0.8.2 (*)
+
+error[vulnerability]: Denial of Service via Stack Exhaustion
+    ┌─ /home/runner/work/myinkbird/myinkbird/Cargo.lock:101:1
+    │
+101 │ time 0.3.45 registry+https://github.com/rust-lang/crates.io-index
+    │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ security vulnerability detected
+    │
+    ├ ID: RUSTSEC-2026-0009
+    ├ Advisory: https://rustsec.org/advisories/RUSTSEC-2026-0009
+    ├ ## Impact
+      
+      When user-provided input is provided to any type that parses with the RFC 2822 format, a denial of
+      service attack via stack exhaustion is possible. The attack relies on formally deprecated and
+      rarely-used features that are part of the RFC 2822 format used in a malicious manner. Ordinary,
+      non-malicious input will never encounter this scenario.
+      
+      ## Patches
+      
+      A limit to the depth of recursion was added in v0.3.47. From this version, an error will be returned
+      rather than exhausting the stack.
+      
+      ## Workarounds
+      
+      Limiting the length of user input is the simplest way to avoid stack exhaustion, as the amount of
+      the stack consumed would be at most a factor of the length of the input.
+    ├ Announcement: https://github.com/time-rs/time/blob/main/CHANGELOG.md#0347-2026-02-05
+    ├ Solution: Upgrade to >=0.3.47 (try `cargo update -p time`)
+    ├ time v0.3.45
+      └── inkbird-collector v0.1.0
+
+advisories FAILED, bans ok, licenses ok, sources ok
+Error: Process completed with exit code 1.
