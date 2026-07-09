@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-08T22:06:12-04:00
+  Generated at   : 2026-07-09T04:54:35-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : 5370a0b129216d1f04f48a570d822bf387562b41
-  Commit (short) : 5370a0b
-  Commit date    : 2026-07-08 22:05:13 -0400
-  Commit message : run dump
+  Commit (full)  : b70ded3c2aed675e9e15c54102df7a113aec5074
+  Commit (short) : b70ded3
+  Commit date    : 2026-07-09 04:54:29 -0400
+  Commit message : add claude response
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 52
   Excluded path  : docs/llm/
@@ -1018,15 +1018,15 @@ pedantic = { level = "warn", priority = -1 }
   File name:             config.rs
   Relative path:         crates/inkbird-collector/src/config.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/config.rs
-  Size:                  4.0 KiB (4168 bytes)
-  Last modified:         2026-07-08 17:08:40.000000000 -0400
+  Size:                  4.0 KiB (4172 bytes)
+  Last modified:         2026-07-09 04:52:31.044687068 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099677
+  Inode:                 20133250
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               a6fcdcf818cd6470cafb6ba4d915f6e5474e92d08b1020db1419d54a9e8f5a7f
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               07a4fac597e8508f55fd9fa570c7ccfcfa68bf51211fa30a83557f3d25d0db32
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! Configuration for the collector, sourced from CLI flags with environment
@@ -1035,10 +1035,10 @@ pedantic = { level = "warn", priority = -1 }
 use std::path::PathBuf;
 use std::time::Duration;
 
-use clap::Args;
+use clap::Parser;
 
 /// Arguments for the `collect` subcommand (the default mode).
-#[derive(Debug, Clone, Args)]
+#[derive(Debug, Clone, Parser)]
 pub struct CollectArgs {
     /// Directory the readings are written under (`<dir>/readings/*.ndjson`).
     #[arg(long, env = "INKBIRD_DATA_DIR", default_value = "./data")]
@@ -1166,15 +1166,15 @@ mod tests {
   File name:             main.rs
   Relative path:         crates/inkbird-collector/src/main.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/main.rs
-  Size:                  2.6 KiB (2702 bytes)
-  Last modified:         2026-07-08 17:11:09.000000000 -0400
+  Size:                  2.6 KiB (2693 bytes)
+  Last modified:         2026-07-09 04:53:16.588008128 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099675
+  Inode:                 20133317
   Hard links:            1
   MIME type:             text/x-c
-  SHA-256:               d778b718aca44327950e1d3ff033712e67512ada7107ebf4e3da32be3f829947
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               4f2077e278861c383e5b37bad3f125769b65b7e8ccf57062045cf4eaffe0d430
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! `inkbird-collector` entry point.
@@ -1255,8 +1255,7 @@ async fn run_collect(args: CollectArgs) -> Result<()> {
 
 /// Initialise tracing/logging. Honours `RUST_LOG`; defaults to `info`.
 fn init_tracing() {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
     tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_target(false)
@@ -1272,15 +1271,15 @@ fn init_tracing() {
   File name:             ndjson_sink.rs
   Relative path:         crates/inkbird-collector/src/ndjson_sink.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/ndjson_sink.rs
-  Size:                  4.1 KiB (4203 bytes)
-  Last modified:         2026-07-08 17:07:46.000000000 -0400
+  Size:                  4.0 KiB (4192 bytes)
+  Last modified:         2026-07-09 04:53:24.471987105 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099676
+  Inode:                 20133332
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               b143f1e466a8c57ec5e81a8b6eb188296ec2d4c518b9fb72ad3f69725b968e27
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               a1cd6f13017e863f8adb6c98f6e9f10b1b042b769dc270008ebea80017d22398
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! An [`ReadingSink`] that appends readings to per-day NDJSON files.
@@ -1322,9 +1321,8 @@ impl NdjsonSink {
 
 impl ReadingSink for NdjsonSink {
     fn record(&mut self, reading: &StoredReading) -> anyhow::Result<()> {
-        fs::create_dir_all(&self.readings_dir).with_context(|| {
-            format!("creating readings dir {}", self.readings_dir.display())
-        })?;
+        fs::create_dir_all(&self.readings_dir)
+            .with_context(|| format!("creating readings dir {}", self.readings_dir.display()))?;
 
         let path = self.file_for(reading.date_key());
         let mut line = serde_json::to_string(reading).context("serializing reading")?;
@@ -1571,15 +1569,15 @@ mod tests {
   File name:             scanner.rs
   Relative path:         crates/inkbird-collector/src/scanner.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/scanner.rs
-  Size:                  11.4 KiB (11733 bytes)
-  Last modified:         2026-07-08 17:10:54.000000000 -0400
+  Size:                  11.4 KiB (11761 bytes)
+  Last modified:         2026-07-09 04:52:55.408309883 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099672
+  Inode:                 20133282
   Hard links:            1
   MIME type:             text/x-asm
-  SHA-256:               5cec9628e0788d5860fb150cdebce09f8f44f7e1e847e164e593b7f1e8f89221
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               e0fc9bb132aca49cfc05dbae892e1f878aea1a338be7d8c37ab2cf67f80b9b5e
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! The Bluetooth listener.
@@ -1590,27 +1588,27 @@ mod tests {
 //! [`ReadingSink`]. Never opening a GATT connection is what protects the
 //! sensor's battery (see docs/adr/0003).
 //!
-//! A note on "passive": `btleplug` drives BlueZ's classic `StartDiscovery`,
+//! A note on "passive": `btleplug` drives `BlueZ`'s classic `StartDiscovery`,
 //! which is an *active* scan at the controller level (the adapter may emit
 //! `SCAN_REQ`). That is a property of the scanner's radio, not the sensor, and
 //! costs the sensor effectively nothing. True controller-level passive
-//! scanning would require BlueZ's `AdvertisementMonitor` API, which `btleplug`
+//! scanning would require `BlueZ`'s `AdvertisementMonitor` API, which `btleplug`
 //! does not use today; see docs/bluetooth.md and docs/adr/0003.
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as _;
 use std::time::{Duration, Instant};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use btleplug::api::{Central as _, CentralEvent, Manager as _, Peripheral as _, ScanFilter};
 use btleplug::platform::{Adapter, Manager, PeripheralId};
 use futures::StreamExt;
-use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
+use time::format_description::well_known::Rfc3339;
 use tokio::time::sleep;
 use tracing::{debug, info, warn};
 
-use inkbird_core::{build_message, parse_ith_13_b, SensorReading, ITH_13_B_MESSAGE_LEN};
+use inkbird_core::{ITH_13_B_MESSAGE_LEN, SensorReading, build_message, parse_ith_13_b};
 
 use crate::config::Config;
 use crate::record::StoredReading;
@@ -1618,7 +1616,7 @@ use crate::shutdown::shutdown_signal;
 use crate::sink::ReadingSink;
 use crate::throttle::Throttle;
 
-/// Acquire the first available Bluetooth adapter via the host BlueZ stack.
+/// Acquire the first available Bluetooth adapter via the host `BlueZ` stack.
 ///
 /// # Errors
 ///
@@ -1626,9 +1624,9 @@ use crate::throttle::Throttle;
 /// running or the D-Bus system socket is not reachable from inside the
 /// container) or if the host has no Bluetooth adapter.
 pub async fn get_central() -> Result<Adapter> {
-    let manager = Manager::new()
-        .await
-        .context("creating BLE manager (is bluetoothd running and the D-Bus system socket mounted?)")?;
+    let manager = Manager::new().await.context(
+        "creating BLE manager (is bluetoothd running and the D-Bus system socket mounted?)",
+    )?;
     let adapters = manager
         .adapters()
         .await
@@ -1684,7 +1682,7 @@ pub async fn run_collect(
                     }
                 }
             }
-            _ = &mut shutdown => {
+            () = &mut shutdown => {
                 info!("shutdown requested; stopping scan");
                 break;
             }
@@ -1793,7 +1791,10 @@ pub async fn run_discover(central: &Adapter, seconds: u64) -> Result<()> {
         .start_scan(ScanFilter::default())
         .await
         .context("starting BLE scan")?;
-    info!(seconds, "discovering BLE devices; press Ctrl-C to stop early");
+    info!(
+        seconds,
+        "discovering BLE devices; press Ctrl-C to stop early"
+    );
 
     let mut seen: HashSet<String> = HashSet::new();
     let deadline = sleep(Duration::from_secs(seconds));
@@ -1811,8 +1812,8 @@ pub async fn run_discover(central: &Adapter, seconds: u64) -> Result<()> {
                     }
                 }
             }
-            _ = &mut deadline => break,
-            _ = &mut shutdown => break,
+            () = &mut deadline => break,
+            () = &mut shutdown => break,
         }
     }
 
@@ -1949,14 +1950,14 @@ mod tests {
   Relative path:         crates/inkbird-collector/src/shutdown.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/shutdown.rs
   Size:                  1.0 KiB (1108 bytes)
-  Last modified:         2026-07-08 17:10:07.000000000 -0400
+  Last modified:         2026-07-09 04:53:33.729774755 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099671
+  Inode:                 20133342
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               2fec150bcd0ec17214e64b7309b0162942f4bd93422a1c277adf23285a02156b
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               4fa64a8ad5195a3108d592aa59da9ee3973c0666530c94feff14c7fa0e2f5044
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! Graceful-shutdown signal handling.
@@ -1969,7 +1970,7 @@ use tracing::warn;
 /// Completes on the first shutdown signal (Ctrl-C or, on Unix, SIGTERM).
 #[cfg(unix)]
 pub async fn shutdown_signal() {
-    use tokio::signal::unix::{signal, SignalKind};
+    use tokio::signal::unix::{SignalKind, signal};
 
     let mut sigterm = match signal(SignalKind::terminate()) {
         Ok(s) => s,
@@ -2006,15 +2007,15 @@ pub async fn shutdown_signal() {
   File name:             sink.rs
   Relative path:         crates/inkbird-collector/src/sink.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/sink.rs
-  Size:                  2.2 KiB (2264 bytes)
-  Last modified:         2026-07-08 17:07:27.000000000 -0400
+  Size:                  2.3 KiB (2450 bytes)
+  Last modified:         2026-07-09 04:53:02.361046067 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099674
+  Inode:                 20133290
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               76c8a771322c63611d79cd6c485b41cae4d98e5d9bf3eaa983ddde193461fc76
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               fb78f9f97e44169016ab41d23d6bf771baee092076a2a116215493dba5225487
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! The storage abstraction: a [`ReadingSink`] receives finished records.
@@ -2044,6 +2045,9 @@ pub struct VecSink {
     pub readings: Vec<StoredReading>,
 }
 
+// The inherent helpers below are exercised only by the unit tests; the release
+// binary uses `VecSink` solely through the `ReadingSink` trait.
+#[cfg_attr(not(test), allow(dead_code))]
 impl VecSink {
     /// Create an empty sink.
     #[must_use]
@@ -2110,15 +2114,15 @@ mod tests {
   File name:             throttle.rs
   Relative path:         crates/inkbird-collector/src/throttle.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/throttle.rs
-  Size:                  6.5 KiB (6680 bytes)
-  Last modified:         2026-07-08 17:08:15.000000000 -0400
+  Size:                  6.6 KiB (6842 bytes)
+  Last modified:         2026-07-09 04:53:08.652029293 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099678
+  Inode:                 20133301
   Hard links:            1
   MIME type:             text/x-c
-  SHA-256:               4713d1c678504a51bfa618fd5f321acedd8d8c6647153dd2f78dfb686a492da5
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               b7e614048c569ee51c2eb8b3265dd25bf952b12b205999c70c668d9b763989fd
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! Per-device throttling so an unchanged sensor does not flood the log.
@@ -2149,7 +2153,9 @@ struct Snapshot {
 impl Snapshot {
     fn new(temp_c: Option<f64>, hum_pct: Option<f64>, battery: Option<u8>) -> Self {
         // Round to the nearest tenth; the decoder already yields tenths so this
-        // is exact in practice and merely defensive.
+        // is exact in practice and merely defensive. Values are tiny (tenths of
+        // a degree/percent), so the f64 -> i32 cast cannot realistically truncate.
+        #[allow(clippy::cast_possible_truncation)]
         let to_tenths = |v: f64| (v * 10.0).round() as i32;
         Self {
             temp_tenths: temp_c.map(to_tenths),
@@ -2381,14 +2387,14 @@ pedantic = { level = "warn", priority = -1 }
   Relative path:         crates/inkbird-core/src/lib.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/lib.rs
   Size:                  2.3 KiB (2359 bytes)
-  Last modified:         2026-07-08 17:05:44.000000000 -0400
+  Last modified:         2026-07-09 04:54:07.930471970 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099666
+  Inode:                 20133381
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               7594517e125b88051bb25f18dfe5c738d07189ed65f62ea24ed98876ee68f11d
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               61910df16ae356863de0e809773e955a564c315046c8aa13e805622e2ba7db42
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! Pure decoding of INKBIRD **ITH-13-B** Bluetooth Low Energy advertisements.
@@ -2441,8 +2447,8 @@ mod parser;
 
 pub use model::{ParseError, SensorReading};
 pub use parser::{
-    build_message, looks_like_ith_13_b, parse_ith_13_b, parse_manufacturer_entry,
     INKBIRD_SERVICE_UUID_16, ITH_13_B_LOCAL_NAME, ITH_13_B_MESSAGE_LEN, MIN_MESSAGE_LEN,
+    build_message, looks_like_ith_13_b, parse_ith_13_b, parse_manufacturer_entry,
 };
 
 
@@ -2454,15 +2460,15 @@ pub use parser::{
   File name:             model.rs
   Relative path:         crates/inkbird-core/src/model.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/model.rs
-  Size:                  2.7 KiB (2777 bytes)
-  Last modified:         2026-07-08 17:05:58.000000000 -0400
+  Size:                  2.7 KiB (2773 bytes)
+  Last modified:         2026-07-09 04:52:06.750194364 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099665
+  Inode:                 20133223
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               690f3d2f6dd380a62ca0f2b032b5be9e4f9fab329cdc5af6df0a82b051648e95
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               e8aeb1ac0eb9b72cdbd9efa4bf363fa209240512e139e374fb87ebfb271d4ebe
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! Domain types for a decoded INKBIRD reading.
@@ -2516,7 +2522,7 @@ impl SensorReading {
 ///
 /// A validation failure rejects the **entire** reading rather than publishing
 /// a partially-corrupt one, matching the reference INKBIRD parser.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, Copy, PartialEq, Error)]
 pub enum ParseError {
     /// The message was shorter than the minimum needed to read every field.
     #[error("message too short: need at least {need} bytes, got {got}")]
@@ -2547,15 +2553,15 @@ pub enum ParseError {
   File name:             parser.rs
   Relative path:         crates/inkbird-core/src/parser.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/parser.rs
-  Size:                  10.1 KiB (10415 bytes)
-  Last modified:         2026-07-08 17:06:47.000000000 -0400
+  Size:                  10.2 KiB (10449 bytes)
+  Last modified:         2026-07-09 04:54:10.048865530 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099667
+  Inode:                 20133389
   Hard links:            1
   MIME type:             text/x-c
-  SHA-256:               d870178eb78bfae7face9d709a8962b936bababa77b779e74f66c98ed192a833
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  SHA-256:               e5dd901648262e9f7065520eebe8e94853321eca091ed926dfc86ca31b8e087b
+  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
 
 --- CONTENT ---
 //! The ITH-13-B advertisement decoder.
@@ -2797,7 +2803,10 @@ mod tests {
         let le = 1000u16.to_le_bytes(); // exactly 100.0 %
         ok[8] = le[0];
         ok[9] = le[1];
-        assert!(approx(parse_ith_13_b(&ok).unwrap().humidity_pct.unwrap(), 100.0));
+        assert!(approx(
+            parse_ith_13_b(&ok).unwrap().humidity_pct.unwrap(),
+            100.0
+        ));
 
         let mut bad = good_message();
         let le = 1001u16.to_le_bytes(); // 100.1 %
@@ -5667,9 +5676,9 @@ log "tests complete"
 # DUMP SUMMARY
 ################################################################################
   Files dumped   : 52
-  Total size     : 179.5 KiB (183819 bytes)
+  Total size     : 179.8 KiB (184209 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-08T22:06:14-04:00
+  Completed at   : 2026-07-09T04:54:36-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
