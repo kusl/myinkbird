@@ -28,7 +28,9 @@ would any other code, and say so in your PR if you used an AI assistant.
 
 All build/test/lint/audit logic lives in `scripts/` so that what you run locally
 is exactly what CI runs (see [ADR 0008](docs/adr/0008-slim-ci-delegating-to-bash.md)).
-Each script is small and sources `scripts/lib.sh`.
+Each script is small and sources `scripts/lib.sh`. Scripts that need root
+acquire `sudo` once, up front, via `ensure_root` (in `lib.sh`) and keep it alive
+for the whole run.
 
 | Script                        | What it does                                              |
 | ----------------------------- | --------------------------------------------------------- |
@@ -38,9 +40,11 @@ Each script is small and sources `scripts/lib.sh`.
 | `scripts/lint.sh`             | `cargo fmt --check` and `cargo clippy -D warnings`        |
 | `scripts/deny.sh`             | `cargo deny check` (licences, advisories, sources)        |
 | `scripts/ci.sh`               | The full local pipeline: deps → lint → build → test       |
-| `scripts/container-build.sh`  | Build both OCI images with `podman build`                 |
+| `scripts/container-build.sh`  | Build both OCI images with `podman build` (**rootful**)   |
 | `scripts/run.sh`              | Build images and start the stack (rootful)                |
+| `scripts/logs.sh`             | Follow the running stack's logs (rootful)                 |
 | `scripts/stop.sh`             | Stop and remove the stack                                 |
+| `scripts/collect-local.sh`    | Run the collector natively (no containers) → `./data`     |
 
 Before opening a PR, please run:
 
@@ -89,6 +93,9 @@ compose.yaml               Compose Spec wiring the two services
 - If you add a dependency with a licence not yet on the allow-list, update
   `deny.toml` in the same PR and explain why in the description. `cargo-deny`
   will fail CI otherwise.
+- `Cargo.lock` is committed (see [ADR 0009](docs/adr/0009-always-latest-dependencies.md));
+  when you change dependencies, commit the updated lock, and keep it current
+  with `cargo update` so the advisory check stays green.
 
 ## Vendor-neutral tooling
 

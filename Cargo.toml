@@ -24,8 +24,9 @@ repository = "https://github.com/kusl/myinkbird"
 authors = ["myinkbird contributors"]
 
 [workspace.dependencies]
-# Local crate.
-inkbird-core = { path = "crates/inkbird-core" }
+# Local crate. A concrete `version` (alongside `path`) is given so cargo-deny
+# does not treat it as a wildcard ("*") dependency.
+inkbird-core = { path = "crates/inkbird-core", version = "0.1.0" }
 
 # Error handling.
 thiserror = "2"
@@ -53,7 +54,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
-# Timestamps (RFC 3339, UTC).
+# Timestamps (RFC 3339, UTC). Kept >= 0.3.47 via Cargo.lock to avoid
+# RUSTSEC-2026-0009 (see docs/adr/0007).
 time = { version = "0.3", features = ["std", "formatting", "macros"] }
 
 # Command-line parsing.

@@ -6,10 +6,12 @@ describes the record schema and how to inspect the data.
 
 ## Where the data lives
 
-Inside the containers the data volume is mounted at `/data`:
+Readings are stored on the **host** so you can see and git-browse them directly.
+A host directory - `./data` by default, or whatever you set
+`INKBIRD_HOST_DATA_DIR` to - is bind-mounted into both containers at `/data`:
 
 ```
-/data/
+./data/                         (host; INKBIRD_HOST_DATA_DIR, default ./data)
 ├── .git/                       created by the committer (local only, never pushed)
 └── readings/
     ├── 2026-07-08.ndjson
@@ -17,13 +19,20 @@ Inside the containers the data volume is mounted at `/data`:
     └── ...
 ```
 
-Files are partitioned by UTC calendar date (the first ten characters of the
-timestamp). A new file starts at 00:00 UTC.
+Inside the containers this same directory is mounted at `/data`. Files are
+partitioned by UTC calendar date (the first ten characters of the timestamp);
+a new file starts at 00:00 UTC.
 
-If you run the collector directly during development (not in a container), the
-default data directory is `./data` relative to where you run it, unless you set
-`INKBIRD_DATA_DIR` (see [docs/bluetooth.md](bluetooth.md) for direct-run
-examples).
+If you run the collector directly during development (not in a container - e.g.
+via `./scripts/collect-local.sh`), the data directory defaults to `./data`
+relative to the repo root unless you set `INKBIRD_DATA_DIR`.
+
+> The collector runs as root (rootful, for BlueZ), so the files under `./data`
+> are **root-owned** (world-readable). To run `git` against the data repo as
+> your normal user, mark it safe once with
+> `git config --global --add safe.directory "$PWD/data"`, or prefix commands
+> with `sudo`. To take ownership back after stopping the stack:
+> `sudo chown -R "$USER:$USER" ./data`.
 
 ## Record schema
 
@@ -98,37 +107,34 @@ git history) compact without losing real transitions.
 
 ## Inspecting the data
 
-NDJSON is line-oriented, so ordinary tools work well. The examples below assume
-you are looking at the data volume; to reach it from the host you can either
-mount it into a throwaway container or copy it out.
+Because the data lives on the host at `./data` (by default), ordinary tools work
+directly - no throwaway container needed. (Prefix with `sudo` if the files are
+root-owned and you have not marked the directory safe; see the note above.)
 
-Open a shell in the data volume:
+List the readings:
 
 ```bash
-sudo podman run --rm -it -v inkbird-data:/data registry.fedoraproject.org/fedora-minimal:latest \
-  bash -lc 'cd /data && ls -la readings'
+ls -la ./data/readings
 ```
 
 Pretty-print today's readings with `jq`:
 
 ```bash
-sudo podman run --rm -v inkbird-data:/data registry.fedoraproject.org/fedora:latest \
-  bash -lc 'dnf -y install jq >/dev/null 2>&1; jq . /data/readings/'"$(date -u +%F)"'.ndjson' | less
+jq . "./data/readings/$(date -u +%F).ndjson" | less
 ```
 
 Extract just timestamps and temperature as CSV:
 
 ```bash
-jq -r '[.ts, (.temperature_c|tostring)] | @csv' readings/2026-07-08.ndjson
+jq -r '[.ts, (.temperature_c|tostring)] | @csv' ./data/readings/2026-07-08.ndjson
 ```
 
 ### Browsing the git history
 
-The committer keeps the data under version control locally. From inside the
-volume:
+The committer keeps the data under version control locally:
 
 ```bash
-cd /data
+cd ./data
 git log --oneline           # commits, one per interval that had new readings
 git log -p readings/2026-07-08.ndjson   # how a day's file grew over time
 git show HEAD               # the most recent batch of appended readings

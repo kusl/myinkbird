@@ -3,10 +3,10 @@
 A small, low-power collector that captures temperature, humidity, and battery
 readings from an **INKBIRD ITH-13-B** Bluetooth thermo-hygrometer by *listening*
 to the advertisements it already broadcasts — never connecting to it — and
-stores those readings as NDJSON in a **local git repository**.
+stores those readings as NDJSON in a **local git repository** on your machine.
 
 Everything runs in containers via **Podman**. Nothing is installed on the host
-except the container engine.
+except the container engine (or, for the quick native path, the Rust toolchain).
 
 > **Primary design goal: add zero extra battery drain to the sensor.** The
 > ITH-13-B runs on two AAA cells and broadcasts its readings over Bluetooth Low
@@ -84,16 +84,16 @@ a substring of its advertised name (`ith-13-b` by default).
 │    scanner → decode (inkbird-core)           │
 │           → throttle → append NDJSON         │
 └───────────────────┬──────────────────────────┘
-                    │  /data/readings/YYYY-MM-DD.ndjson
+                    │  ./data/readings/YYYY-MM-DD.ndjson   (on the host)
                     ▼
         ┌───────────────────────────┐
-        │  inkbird-data volume      │
+        │  host dir  ./data          │  bind-mounted into both containers
         └───────────┬───────────────┘
                     │  git add / commit on an interval (never pushed)
                     ▼
         ┌───────────────────────────┐
         │  committer container      │
-        │  local git repo in /data  │
+        │  local git repo in ./data │
         └───────────────────────────┘
 ```
 
@@ -111,37 +111,58 @@ See [docs/architecture.md](docs/architecture.md) for the full picture.
 
 ## Quick start
 
-You need Podman and a working host Bluetooth stack (`systemctl status bluetooth`).
+You need a working host Bluetooth stack (`systemctl status bluetooth`).
+
+### Option A — see it work fast, no containers
+
+The quickest way to confirm your sensor is seen and readings are landing in a
+file you can look at. Needs the Rust toolchain and the D-Bus build headers
+(`./scripts/install-system-deps.sh` installs them):
 
 ```bash
-# 1. Build both container images.
-./scripts/container-build.sh
+./scripts/collect-local.sh
+```
 
-# 2. Find your sensor's Bluetooth address (scans for 30s and prints devices).
+It builds the collector, asks for `sudo` **once** up front (BlueZ needs root),
+and writes readings to `./data/readings/<date>.ndjson` — right in the repo,
+where you can `tail -f` or `jq` them. Press Ctrl-C to stop.
+
+### Option B — the full containerised stack (collector + git committer)
+
+You need Podman.
+
+```bash
+# 1. Find your sensor's Bluetooth address (scans for 30s and prints devices).
+#    (Build the image first; it is built rootful — see the Bluetooth note below.)
+./scripts/container-build.sh
 sudo podman run --rm \
   --security-opt label=disable \
   -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
   localhost/myinkbird-collector:latest discover --seconds 30
 
-# 3. Configure. Copy the example env and set INKBIRD_ADDRESS to the address
-#    you found in step 2.
+# 2. Configure. Copy the example env and set INKBIRD_ADDRESS to the address
+#    you found in step 1 (leave it blank to match by name instead).
 cp .env.example .env
 $EDITOR .env
 
-# 4. Start the stack (rootful — see the Bluetooth note below).
+# 3. Start the stack (asks for sudo once, up front — see the Bluetooth note).
 ./scripts/run.sh
 
 # Follow the logs:
-sudo podman compose logs -f
+./scripts/logs.sh        # or: sudo podman compose logs -f
 ```
 
 Stop it with `./scripts/stop.sh`.
 
-**Why `sudo`?** The container reaches Bluetooth by talking to the host's
+**Why `sudo`?** The collector reaches Bluetooth by talking to the host's
 `bluetoothd` over the D-Bus system socket, and BlueZ's default policy only
-accepts calls from `root`. Running the stack rootful satisfies that policy. The
-full explanation, the SELinux note (`label=disable`), and troubleshooting are in
-[docs/bluetooth.md](docs/bluetooth.md).
+accepts calls from `root`. Running rootful satisfies that policy — and because
+rootless and rootful Podman use separate image stores, the images are built
+rootful too so the stack can find them. The scripts request `sudo` **once at the
+start** and keep the credential alive for the whole run, so you are not prompted
+partway through. The full explanation, the SELinux note (`label=disable`), and
+troubleshooting are in [docs/bluetooth.md](docs/bluetooth.md) and
+[ADR 0010](docs/adr/0010-build-images-rootful.md).
 
 ## Configuration
 
@@ -151,26 +172,37 @@ equivalent CLI flags. Copy [`.env.example`](.env.example) to `.env` to start.
 | Variable                    | Default             | Meaning                                                                 |
 | --------------------------- | ------------------- | ----------------------------------------------------------------------- |
 | `RUST_LOG`                  | `info`              | Log verbosity (`error`/`warn`/`info`/`debug`/`trace`).                  |
-| `INKBIRD_ADDRESS`           | *(empty)*           | Sensor Bluetooth address, e.g. `AA:BB:CC:DD:EE:FF`. **Recommended.** Empty → match by name. |
+| `INKBIRD_HOST_DATA_DIR`     | `./data`            | **Host** directory the readings + local git repo live in (bind-mounted into the containers at `/data`). Relative to `compose.yaml`. |
+| `INKBIRD_ADDRESS`           | *(empty)*           | Sensor Bluetooth address, e.g. `AA:BB:CC:DD:EE:FF`. **Recommended.** Empty → match by name (empty is *not* treated as an empty address filter). |
 | `INKBIRD_NAME_MATCH`        | `ith-13-b`          | Case-insensitive name substring used when no address is set.            |
 | `INKBIRD_MIN_INTERVAL_SECS` | `60`                | Minimum seconds between recorded readings for an *unchanged* sensor. Any change is always recorded. |
-| `INKBIRD_DATA_DIR`          | `/data` (container) | Directory readings are written under (`<dir>/readings/*.ndjson`).       |
+| `INKBIRD_DATA_DIR`          | `/data` (container) | Directory readings are written under, *inside* the process (`<dir>/readings/*.ndjson`). The stack sets this to `/data`. |
 | `GIT_AUTHOR_NAME`           | `myinkbird`         | Author name for the committer's local commits.                          |
 | `GIT_AUTHOR_EMAIL`          | `myinkbird@localhost` | Author email for the committer's local commits.                       |
 | `COMMIT_INTERVAL_SECS`      | `300`               | How often the committer commits new readings (local only, never pushed).|
 
 ## The data
 
-Readings are appended, one JSON object per line, to per-day files under the
-`inkbird-data` volume at `/data/readings/<YYYY-MM-DD>.ndjson`. Example line:
+Readings are appended, one JSON object per line, to per-day files on the **host**
+at `${INKBIRD_HOST_DATA_DIR:-./data}/readings/<YYYY-MM-DD>.ndjson` — a real
+directory you can browse. Example line:
 
 ```json
 {"ts":"2026-07-08T21:03:44Z","address":"AA:BB:CC:DD:EE:FF","name":"ITH-13-B","model":"ITH-13-B","temperature_c":28.9,"humidity_pct":45.5,"battery_pct":100,"rssi_dbm":-61}
 ```
 
 The committer keeps these files under version control in a **local** git repo in
-the same volume and never pushes them anywhere. The full schema, decoding byte
-layout, and tips for inspecting the data (with `jq` and `git log -p`) are in
+the same directory and never pushes them anywhere:
+
+```bash
+cd ./data
+git log --oneline
+```
+
+Because the collector runs as root, the files are root-owned; to `git` the data
+repo as your user, run `git config --global --add safe.directory "$PWD/data"`
+once (or use `sudo git -C ./data ...`). The full schema, decoding byte layout,
+and inspection tips (`jq`, `git log -p`) are in
 [docs/data-format.md](docs/data-format.md).
 
 ## Why this doesn't drain the sensor's battery
@@ -201,10 +233,12 @@ All build, test, lint, and audit logic lives in `scripts/`, so what you run
 locally is exactly what CI runs.
 
 ```bash
-./scripts/test.sh    # cargo test --workspace
-./scripts/lint.sh    # fmt --check + clippy -D warnings
-./scripts/ci.sh      # the full pipeline: deps → lint → build → test
-./scripts/deny.sh    # supply-chain audit (licences, advisories)
+./scripts/test.sh          # cargo test --workspace
+./scripts/lint.sh          # fmt --check + clippy -D warnings
+./scripts/ci.sh            # the full pipeline: deps → lint → build → test
+./scripts/deny.sh          # supply-chain audit (licences, advisories)
+./scripts/collect-local.sh # run the collector natively → ./data (no containers)
+./scripts/logs.sh          # follow the running stack's logs
 ```
 
 You can also run the collector directly (outside a container) once built —
@@ -212,6 +246,9 @@ handy for `discover` during development. Building `btleplug` needs a C compiler,
 `pkg-config`, and the D-Bus dev headers; `scripts/install-system-deps.sh`
 installs them. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup and
 conventions.
+
+`Cargo.lock` is committed, so the dependency graph (and the `cargo-deny`
+advisory check) is reproducible; keep it current with `cargo update`.
 
 ## Documentation
 

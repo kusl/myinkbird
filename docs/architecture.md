@@ -38,7 +38,9 @@ The runnable program. Responsibilities are split across small modules:
   GATT connection.
 - `config` - resolves CLI flags and environment variables into a validated
   `Config` (data directory, optional address filter, name-match substring,
-  throttle interval).
+  throttle interval). An empty address filter (e.g. an unset `INKBIRD_ADDRESS`
+  that compose passes as `""`) is normalised to "no filter", so the collector
+  falls back to name matching instead of matching nothing.
 - `throttle` - suppresses duplicate readings from an unchanged sensor while
   always recording any real change. Pure and time-injected, so it is fully
   unit-testable.
@@ -59,20 +61,24 @@ address and confirm its byte layout).
 An OCI image built from the `Containerfile`. Multi-stage: it compiles with the
 full Fedora toolchain, then ships only the stripped binary on
 `fedora-minimal`. Its one runtime dependency is `libdbus`, because `btleplug`
-talks to the host's `bluetoothd` over the D-Bus system bus.
+talks to the host's `bluetoothd` over the D-Bus system bus. It is built
+**rootful** so the rootful stack can find it (see
+[ADR 0010](adr/0010-build-images-rootful.md)).
 
 ### `committer` container
 
 An OCI image built from `Containerfile.committer`. It runs `commit-loop.sh`,
-which initialises the shared data volume as a *local* git repository (if needed)
-and commits any new readings on an interval. It **never pushes**
+which initialises the shared data directory as a *local* git repository (if
+needed) and commits any new readings on an interval. It **never pushes**
 (see [ADR 0006](adr/0006-local-git-ndjson-storage.md)).
 
-### Shared data volume
+### Shared data directory (host bind mount)
 
-A named Podman volume, `inkbird-data`, mounted at `/data` in both containers.
-The collector writes NDJSON into it; the committer commits it. This is the only
-thing the two containers share.
+A directory on the **host** - `./data` by default, or `INKBIRD_HOST_DATA_DIR` -
+is bind-mounted at `/data` in both containers. The collector writes NDJSON into
+it; the committer commits it. Because it is a real host directory (not an
+opaque named volume), you can browse the NDJSON files and their git history
+directly. This is the only thing the two containers share.
 
 ## Data flow
 
@@ -104,8 +110,8 @@ thing the two containers share.
                     │  writes <date>.ndjson
                     ▼
         ┌───────────────────────────┐
-        │  inkbird-data volume       │
-        │  /data/readings/*.ndjson   │
+        │  host directory (./data)   │
+        │  /data/readings/*.ndjson   │   bind-mounted into both containers
         └───────────┬───────────────┘
                     │  git add / commit on an interval (no push)
                     ▼
@@ -130,7 +136,8 @@ Step by step:
 6. `throttle` decides whether this reading is worth recording (new device, any
    changed value, or enough time elapsed).
 7. `NdjsonSink` appends the record as one line to
-   `/data/readings/<YYYY-MM-DD>.ndjson`.
+   `/data/readings/<YYYY-MM-DD>.ndjson` - which is `./data/readings/...` on the
+   host.
 8. On its own schedule, the committer stages and commits new lines to the local
    git repository in `/data`. Nothing is ever pushed.
 
@@ -140,8 +147,8 @@ Step by step:
 - Within the collector, `scanner` depends on the `ReadingSink` *trait*, not on
   `NdjsonSink` directly. The concrete sink is injected in `main`. This keeps the
   hardware-facing code and the storage code independently testable.
-- The two containers communicate only through files in the shared volume; there
-  is no network link between them.
+- The two containers communicate only through files in the shared host
+  directory; there is no network link between them.
 
 ## What is intentionally *not* here
 

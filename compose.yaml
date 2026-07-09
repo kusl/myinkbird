@@ -6,21 +6,30 @@
 # vendor-neutral and keeps any proprietary build-file naming out of this file.
 #
 # Launch this stack rootful (`sudo podman compose up -d`, or use
-# scripts/run.sh): BlueZ's D-Bus policy only accepts calls from uid 0. See
-# docs/adr/0005 and docs/bluetooth.md.
+# scripts/run.sh): BlueZ's D-Bus policy only accepts calls from uid 0, and the
+# images must be built rootful so this rootful stack can find them. See
+# docs/adr/0005, docs/adr/0010, and docs/bluetooth.md.
 
 services:
   collector:
     image: localhost/myinkbird-collector:latest
-    # Fedora/SELinux: allow the bind-mounted D-Bus socket to be used by the
-    # container process. See docs/bluetooth.md.
+    # Never try to pull from a registry: this image is built locally, rootful,
+    # by scripts/container-build.sh. Without this, a rootful `compose up` that
+    # cannot find the image tries to pull `localhost/...` and fails with a
+    # "connection refused" error. See docs/adr/0010.
+    pull_policy: never
+    # Fedora/SELinux: allow the bind-mounted host paths (the D-Bus socket and
+    # the data directory) to be used by the container. See docs/bluetooth.md.
     security_opt:
       - label=disable
     volumes:
       # Talk to the host bluetoothd over the system D-Bus socket (listen-only;
       # we never open a GATT connection - see docs/adr/0003).
       - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
-      - inkbird-data:/data
+      # Store readings on the HOST so they are visible and git-committable,
+      # rather than hidden inside an opaque named volume. Defaults to ./data
+      # next to this file; override with INKBIRD_HOST_DATA_DIR. See docs/adr/0006.
+      - ${INKBIRD_HOST_DATA_DIR:-./data}:/data
     environment:
       RUST_LOG: ${RUST_LOG:-info}
       INKBIRD_DATA_DIR: /data
@@ -33,9 +42,15 @@ services:
 
   committer:
     image: localhost/myinkbird-committer:latest
+    pull_policy: never
+    # Same SELinux relaxation so the sidecar can read/commit the bind-mounted
+    # host data directory.
+    security_opt:
+      - label=disable
     volumes:
-      - inkbird-data:/data
+      - ${INKBIRD_HOST_DATA_DIR:-./data}:/data
     environment:
+      INKBIRD_DATA_DIR: /data
       GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-myinkbird}
       GIT_AUTHOR_EMAIL: ${GIT_AUTHOR_EMAIL:-myinkbird@localhost}
       COMMIT_INTERVAL_SECS: ${COMMIT_INTERVAL_SECS:-300}
@@ -43,5 +58,6 @@ services:
       - collector
     restart: unless-stopped
 
-volumes:
-  inkbird-data:
+# No named volume any more: the data lives on the host at INKBIRD_HOST_DATA_DIR
+# (default ./data), which is where you can see the NDJSON files and their local
+# git history.

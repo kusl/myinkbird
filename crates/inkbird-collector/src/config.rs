@@ -16,7 +16,8 @@ pub struct CollectArgs {
     /// Only record advertisements from this Bluetooth address
     /// (e.g. `AA:BB:CC:DD:EE:FF`). Recommended - it is the most reliable way
     /// to pick your sensor, especially under passive scanning where the name
-    /// may be absent. Find it with the `discover` subcommand.
+    /// may be absent. Find it with the `discover` subcommand. An empty value
+    /// (the default) means "no address filter": match by name instead.
     #[arg(long, env = "INKBIRD_ADDRESS")]
     pub address: Option<String>,
 
@@ -49,7 +50,16 @@ impl From<CollectArgs> for Config {
         Self {
             data_dir: args.data_dir,
             // Normalise the address once so comparisons are case-insensitive.
-            address: args.address.map(|a| a.trim().to_ascii_uppercase()),
+            //
+            // An empty or whitespace-only value means "no address filter", so
+            // we fall back to matching by name. This matters because Compose
+            // passes an unset `INKBIRD_ADDRESS` through as the empty string
+            // (`INKBIRD_ADDRESS=""`); without this, the collector would filter
+            // on an empty address, match nothing, and silently record nothing.
+            address: args
+                .address
+                .map(|a| a.trim().to_ascii_uppercase())
+                .filter(|a| !a.is_empty()),
             name_match: args.name_match.to_ascii_lowercase(),
             min_interval: Duration::from_secs(args.min_interval_secs),
         }
@@ -123,5 +133,24 @@ mod tests {
         let cfg = Config::from(a);
         assert!(cfg.address_matches("anything"));
         assert!(!cfg.has_address_filter());
+    }
+
+    #[test]
+    fn empty_address_is_treated_as_no_filter() {
+        // Compose passes an unset INKBIRD_ADDRESS as "".
+        let mut a = args();
+        a.address = Some(String::new());
+        let cfg = Config::from(a);
+        assert!(!cfg.has_address_filter());
+        assert!(cfg.address_matches("anything"));
+    }
+
+    #[test]
+    fn whitespace_only_address_is_treated_as_no_filter() {
+        let mut a = args();
+        a.address = Some("   ".to_string());
+        let cfg = Config::from(a);
+        assert!(!cfg.has_address_filter());
+        assert!(cfg.address_matches("anything"));
     }
 }

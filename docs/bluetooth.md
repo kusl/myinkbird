@@ -28,7 +28,7 @@ The host must therefore have:
 - `bluetoothd` running (on Fedora: `systemctl status bluetooth`; enable with
   `sudo systemctl enable --now bluetooth`).
 
-## Why the stack runs rootful
+## Why the stack runs rootful (and is built rootful)
 
 BlueZ's default D-Bus policy only authorises the `root` user (uid 0) - and
 sometimes members of a `bluetooth` group - to call the `org.bluez` service.
@@ -42,9 +42,13 @@ subuid on the host, so BlueZ rejects it with an `Rejected send message` /
 (`sudo podman ...`) makes the container process present as uid 0 to the system
 bus, which satisfies the policy.
 
-That is why `scripts/run.sh` uses `sudo podman compose up -d` and the images run
-their process as root. See
-[ADR 0005](adr/0005-bluetooth-via-host-bluez-dbus.md).
+Because the stack runs rootful, the images are also **built** rootful: rootless
+and rootful Podman keep separate image stores, so an image built rootless is
+invisible to the rootful stack (which then tries, and fails, to pull it from a
+registry). `scripts/container-build.sh` builds under `sudo`, and `compose.yaml`
+sets `pull_policy: never`. See
+[ADR 0005](adr/0005-bluetooth-via-host-bluez-dbus.md) and
+[ADR 0010](adr/0010-build-images-rootful.md).
 
 > If you prefer not to run rootful, the alternative is to install a permissive
 > BlueZ D-Bus policy file on the host that grants your user (or a `bluetooth`
@@ -54,17 +58,18 @@ their process as root. See
 ## SELinux (Fedora)
 
 On SELinux-enforcing hosts (Fedora's default), the container is not allowed to
-use the bind-mounted host socket unless its label is relaxed. The compose file
-sets:
+use the bind-mounted host socket or data directory unless its label is relaxed.
+The compose file sets, on both services:
 
 ```yaml
 security_opt:
   - label=disable
 ```
 
-which disables SELinux confinement for that container so it can use the D-Bus
-socket. If you want tighter confinement, you can instead craft a custom SELinux
-policy for the socket, but `label=disable` is the simple, documented default.
+which disables SELinux confinement for the containers so they can use the D-Bus
+socket and the bind-mounted data directory. If you want tighter confinement, you
+can instead craft a custom SELinux policy, but `label=disable` is the simple,
+documented default.
 
 ## Active vs. passive scanning (and the battery guarantee)
 
@@ -94,13 +99,21 @@ requirement for the goal.
 Matching by address is more reliable than matching by name (a passive
 advertisement may not even carry the name). Use the `discover` subcommand, which
 scans for a fixed time and prints every device it sees, along with an attempted
-ITH-13-B decode:
+ITH-13-B decode.
+
+The quickest way (no image build) is the native helper:
 
 ```bash
-# Build the image first if you have not:
-./scripts/container-build.sh
+# Builds the workspace, then scans natively (asks for sudo up front):
+INKBIRD_DISCOVER_SECONDS=30 sudo -E ./target/release/inkbird-collector discover
+# ...or just run it once via cargo:
+cargo build --release -p inkbird-collector
+```
 
-# Then run discover, rootful, with the D-Bus socket mounted:
+Or via the container image (build it first - rootful - with
+`./scripts/container-build.sh`):
+
+```bash
 sudo podman run --rm \
   --security-opt label=disable \
   -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
@@ -111,12 +124,12 @@ Look for a device whose name contains `ITH-13-B`, or whose manufacturer data
 decodes to a sensible temperature / humidity / battery. Note its address
 (`AA:BB:CC:DD:EE:FF`) and put it in your `.env` as `INKBIRD_ADDRESS`.
 
-You can also run it directly (outside a container) during development once the
-workspace is built:
+You can also run the collector directly during development once the workspace is
+built:
 
 ```bash
 ./scripts/build.sh
-INKBIRD_DISCOVER_SECONDS=30 ./target/release/inkbird-collector discover
+INKBIRD_DISCOVER_SECONDS=30 sudo -E ./target/release/inkbird-collector discover
 ```
 
 ## Confirming the byte layout
@@ -142,6 +155,14 @@ do not, the byte offsets in `crates/inkbird-core/src/lib.rs` /
 
 ## Troubleshooting
 
+**`pinging container registry localhost ... connect: connection refused`
+(port 443) when starting the stack.**
+The rootful stack cannot find the images because they were built rootless
+(separate image store), so compose tries to pull them from a registry called
+`localhost` and fails. Build rootful - `./scripts/container-build.sh` (or just
+`./scripts/run.sh`, which does it for you) now builds under `sudo`. See
+[ADR 0010](adr/0010-build-images-rootful.md).
+
 **`creating BLE manager ...` / no adapter found.**
 `bluetoothd` is probably not running or the D-Bus socket is not mounted. Check
 `systemctl status bluetooth` on the host and confirm
@@ -161,7 +182,9 @@ Confirm the sensor is advertising and in range. Run `discover` to see whether it
 appears at all. If it appears but under a different name, set `INKBIRD_ADDRESS`
 to its address rather than relying on the name match. Remember the collector
 throttles unchanged readings (default 60 s), so a perfectly stable environment
-produces sparse lines by design.
+produces sparse lines by design. (Note: an *empty* `INKBIRD_ADDRESS` is treated
+as "no filter"/match-by-name, so leaving it blank does **not** suppress
+readings.)
 
 **`no compose provider found`.**
 Install either the `podman compose` plugin or `podman-compose`. The scripts try

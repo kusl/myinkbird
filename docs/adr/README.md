@@ -34,3 +34,4 @@ original ADR write-up and the MADR template. For background see
 | [0007](0007-agpl-and-dependency-policy.md)                 | AGPL-3.0-or-later and a free-dependency policy     | Accepted |
 | [0008](0008-slim-ci-delegating-to-bash.md)                 | Slim CI that delegates to bash scripts            | Accepted |
 | [0009](0009-always-latest-dependencies.md)                 | Track the latest toolchain and dependencies       | Accepted |
+| [0010](0010-build-images-rootful.md)                       | Build the container images rootful                | Accepted |

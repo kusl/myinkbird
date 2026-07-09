@@ -7,6 +7,51 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 
 ## [Unreleased]
 
+### Fixed
+
+- **Stack now starts.** The images were built rootless but the stack runs
+  rootful (required for BlueZ's D-Bus policy), and the two use separate image
+  stores. A rootful `podman compose up` therefore could not find
+  `localhost/myinkbird-*:latest` and failed trying to pull it from a
+  registry named `localhost` (`connection refused`). `scripts/container-build.sh`
+  now builds **rootful**, and `compose.yaml` sets `pull_policy: never` on both
+  services. See [ADR 0010](docs/adr/0010-build-images-rootful.md).
+- **Empty `INKBIRD_ADDRESS` no longer suppresses all readings.** Compose passes
+  an unset address through as the empty string; the collector treated that as a
+  real (empty) address filter and matched nothing. `Config` now normalises an
+  empty or whitespace-only address to "no filter" and falls back to name
+  matching. Added unit tests.
+- **cargo-deny advisories pass.** The dependency graph pinned `time` 0.3.45,
+  which carries RUSTSEC-2026-0009 (RFC 2822 parsing stack-exhaustion DoS).
+  `Cargo.lock` is now committed and pins `time` >= 0.3.47, deterministically
+  clearing the advisory (and closing a reproducibility gap - the lock was
+  previously untracked). The `Containerfile` copies `Cargo.lock` so the image
+  builds the same pinned versions.
+
+### Changed
+
+- **Readings are stored on the host, not in a named volume.** `compose.yaml`
+  bind-mounts a host directory (default `./data`, override with
+  `INKBIRD_HOST_DATA_DIR`) into both containers at `/data`, so the NDJSON files
+  and their local git history are directly visible and browsable on the host.
+  See [ADR 0006](docs/adr/0006-local-git-ndjson-storage.md).
+- Scripts that need root (`run.sh`, `stop.sh`, `logs.sh`, `container-build.sh`,
+  `collect-local.sh`) now acquire `sudo` **once, up front**, via `ensure_root`
+  in `scripts/lib.sh`, and keep the credential alive in the background for the
+  duration of the run rather than prompting partway through.
+- `deny.toml`: silence "unused allowed license" warnings
+  (`unused-allowed-license = "allow"`) and set `wildcards = "deny"` with
+  `allow-wildcard-paths = true`; the workspace `inkbird-core` dependency now
+  carries a concrete `version`, removing the wildcard/unresolved-workspace
+  diagnostics.
+
+### Added
+
+- `scripts/collect-local.sh` - run the collector directly on the host (no
+  containers) and write readings to the visible `./data` directory; the quickest
+  way to confirm the sensor is seen and readings are being written.
+- `scripts/logs.sh` - follow the running stack's logs (rootful).
+
 ## [0.1.0] - 2026-07-08
 
 Initial scaffold.

@@ -10,7 +10,7 @@ die()  { printf '\033[1;31m[myinkbird]\033[0m %s\n' "$*" >&2; exit 1; }
 # Repository root (parent of the scripts/ directory).
 repo_root() { cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd; }
 
-# Run a command as root when not already root; prefer sudo.
+# Run a single command as root when not already root; prefer sudo.
 as_root() {
   if [ "$(id -u)" -eq 0 ]; then
     "$@"
@@ -19,6 +19,43 @@ as_root() {
   else
     die "root required for: $* (install sudo or run as root)"
   fi
+}
+
+# Acquire root ONCE, up front, and keep the sudo timestamp alive for the whole
+# life of the calling script. This means a long-running step (image build,
+# `compose up`, a native `collect` run) never stalls on a password prompt
+# partway through, and the sudo credential does not expire mid-run.
+#
+# Call this near the top of any script that will need root. Subsequent
+# `as_root ...`/`sudo ...` calls then run without prompting. It is a no-op when
+# already root, and it is inherited by child scripts (via INKBIRD_SUDO_ACTIVE)
+# so nested scripts do not prompt again or start a second keep-alive.
+ensure_root() {
+  if [ "$(id -u)" -eq 0 ]; then
+    return 0
+  fi
+  if [ -n "${INKBIRD_SUDO_ACTIVE:-}" ]; then
+    return 0                       # a parent already acquired + is keeping it alive
+  fi
+  command -v sudo >/dev/null 2>&1 \
+    || die "root is required (BlueZ D-Bus access + rootful Podman) but sudo is not installed; re-run this as root"
+
+  log "root is required (BlueZ D-Bus access + rootful Podman). Requesting sudo now, up front."
+  sudo -v || die "could not obtain sudo credentials"
+  export INKBIRD_SUDO_ACTIVE=1
+
+  # Background keep-alive: refresh the sudo timestamp every 50s until this
+  # script exits. $$ inside the subshell is the PID of this (parent) script, so
+  # the loop stops as soon as the script is gone.
+  ( while true; do
+      sudo -n true 2>/dev/null || exit 0
+      sleep 50
+      kill -0 "$$" 2>/dev/null || exit 0
+    done ) &
+  _SUDO_KEEPALIVE_PID=$!
+  # Best-effort: stop the keep-alive when this script exits.
+  trap 'kill "$_SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+  log "sudo acquired; keeping it alive for the duration of this run"
 }
 
 # Echo the detected system package manager, or an empty string.

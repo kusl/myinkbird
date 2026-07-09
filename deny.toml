@@ -4,6 +4,11 @@
 # are compatible with distributing this project under AGPL-3.0-or-later. Any
 # licence not on the allow-list below fails the check, so a new dependency with
 # an unexpected licence is caught in CI.
+#
+# Note: the advisory check reads Cargo.lock, which is committed (see
+# docs/adr/0009). Keeping the lock current (e.g. `cargo update`) is how we stay
+# clear of advisories such as RUSTSEC-2026-0009 (the `time` < 0.3.47 stack-
+# exhaustion DoS that previously failed this check).
 
 [advisories]
 version = 2
@@ -14,6 +19,9 @@ ignore = []
 [licenses]
 version = 2
 confidence-threshold = 0.8
+# The allow-list intentionally covers more licences than the current graph uses
+# (headroom for future dependencies); do not warn about the unused entries.
+unused-allowed-license = "allow"
 allow = [
     # This project's own crates.
     "AGPL-3.0-or-later",
@@ -35,9 +43,13 @@ allow = [
 ]
 
 [bans]
-# Duplicate versions are a warning, not a hard failure, for a small project.
+# Duplicate versions are a warning, not a hard failure, for a small project
+# (btleplug pulls in an older thiserror 1.x via jni, alongside our thiserror 2).
 multiple-versions = "warn"
-wildcards = "warn"
+# Reject genuine wildcard ("*") version requirements, but allow the internal
+# path dependency on inkbird-core (which carries a concrete version anyway).
+wildcards = "deny"
+allow-wildcard-paths = true
 
 [sources]
 unknown-registry = "deny"

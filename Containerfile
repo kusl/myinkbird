@@ -14,7 +14,10 @@ RUN dnf -y install gcc pkgconf-pkg-config dbus-devel rustup \
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /src
-COPY Cargo.toml ./
+# Copy the committed Cargo.lock too, so the build uses the exact, pinned
+# dependency versions - in particular `time` >= 0.3.47, which avoids
+# RUSTSEC-2026-0009. See docs/adr/0007 and docs/adr/0009.
+COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
 RUN cargo build --release -p inkbird-collector
 
