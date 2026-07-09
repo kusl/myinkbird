@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-09T07:18:01-04:00
+  Generated at   : 2026-07-09T08:07:08-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : ae80d3ba198c86c1764729ab79c6c516990753fa
-  Commit (short) : ae80d3b
-  Commit date    : 2026-07-09 06:06:03 -0400
-  Commit message : run dump
+  Commit (full)  : 39d22642e8b9f1dc33c11c668b681a7ca4a39582
+  Commit (short) : 39d2264
+  Commit date    : 2026-07-09 08:06:59 -0400
+  Commit message : clean up
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 56
   Excluded path  : docs/llm/
@@ -6481,15 +6481,15 @@ You should also get your employer (if you work as a programmer) or school, if an
   File name:             README.md
   Relative path:         README.md
   Absolute path:         /home/kushal/src/rust/myinkbird/README.md
-  Size:                  13.5 KiB (13912 bytes)
-  Last modified:         2026-07-09 09:56:20.000000000 -0400
+  Size:                  13.5 KiB (13911 bytes)
+  Last modified:         2026-07-09 08:06:50.642441240 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
   Inode:                 20185135
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               85d7c1a9d1c4f2fe8b02f28e2d8bc006242b42fb53b7a59e7132bee66b50fca3
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               2a7328ad4a81ce4507127f750596b2f615923e8b5cab96dc2012d3ad255ad835
+  Last git commit:       39d2264 2026-07-09 08:06:59 -0400 clean up
 
 --- CONTENT ---
 # myinkbird
@@ -6581,7 +6581,7 @@ a substring of its advertised name (`ith-13-b` by default).
                     │  ./data/readings/YYYY-MM-DD.ndjson   (on the host)
                     ▼
         ┌───────────────────────────┐
-        │  host dir  ./data          │  bind-mounted into both containers
+        │  host dir  ./data         │  bind-mounted into both containers
         └───────────┬───────────────┘
                     │  git add / commit on an interval (never pushed)
                     ▼
@@ -7461,9 +7461,9 @@ log "tests complete"
 # DUMP SUMMARY
 ################################################################################
   Files dumped   : 56
-  Total size     : 231.7 KiB (237264 bytes)
+  Total size     : 231.7 KiB (237263 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-09T07:18:02-04:00
+  Completed at   : 2026-07-09T08:07:10-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################

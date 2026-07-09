@@ -160,4 +160,9 @@ myinkbird_committer_1
 real	0m1.850s
 user	0m0.102s
 sys	0m0.095s
+kushal@fedora:~/src/rust/myinkbird$ cd ~/src/rust/myinkbird/; time bash export.sh > docs/llm/vendor/output.txt
+
+real	0m1.812s
+user	0m0.821s
+sys	0m1.120s
 kushal@fedora:~/src/rust/myinkbird$ 
