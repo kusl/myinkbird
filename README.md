@@ -68,32 +68,32 @@ a substring of its advertised name (`ith-13-b` by default).
 
 ```text
    ┌────────────────────┐
-   │  INKBIRD ITH-13-B   │  broadcasts BLE advertisements
-   │  (2×AAA battery)    │  (temperature, humidity, battery %)
+   │  INKBIRD ITH-13-B  │  broadcasts BLE advertisements
+   │  (2×AAA battery)   │  (temperature, humidity, battery %)
    └─────────┬──────────┘
              │  radio  (listen-only; the sensor is never connected to)
              ▼
    ┌────────────────────┐
-   │  Host BlueZ         │  bluetoothd owns the adapter
-   │  (bluetoothd)       │
+   │  Host BlueZ        │  bluetoothd owns the adapter
+   │  (bluetoothd)      │
    └─────────┬──────────┘
              │  D-Bus system socket (bind-mounted into the container)
              ▼
 ┌──────────────────────────────────────────────┐
-│  collector container (Rust, btleplug)         │
-│    scanner → decode (inkbird-core)            │
-│           → throttle → append NDJSON           │
-└───────────────────┬───────────────────────────┘
+│  collector container (Rust, btleplug)        │
+│    scanner → decode (inkbird-core)           │
+│           → throttle → append NDJSON         │
+└───────────────────┬──────────────────────────┘
                     │  /data/readings/YYYY-MM-DD.ndjson
                     ▼
         ┌───────────────────────────┐
-        │  inkbird-data volume       │
+        │  inkbird-data volume      │
         └───────────┬───────────────┘
                     │  git add / commit on an interval (never pushed)
                     ▼
         ┌───────────────────────────┐
-        │  committer container       │
-        │  local git repo in /data   │
+        │  committer container      │
+        │  local git repo in /data  │
         └───────────────────────────┘
 ```
 

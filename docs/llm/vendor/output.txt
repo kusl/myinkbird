@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-09T04:54:35-04:00
+  Generated at   : 2026-07-09T05:04:08-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : b70ded3c2aed675e9e15c54102df7a113aec5074
-  Commit (short) : b70ded3
-  Commit date    : 2026-07-09 04:54:29 -0400
-  Commit message : add claude response
+  Commit (full)  : 9f2e86b9c7aaf744349a57784ecd7602bc6a4fca
+  Commit (short) : 9f2e86b
+  Commit date    : 2026-07-09 04:54:44 -0400
+  Commit message : run dump
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 52
   Excluded path  : docs/llm/
@@ -28,6 +28,7 @@ REPOSITORY METADATA
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
+ M README.md
  M docs/llm/vendor/output.txt
 
 ################################################################################
@@ -4897,14 +4898,14 @@ You should also get your employer (if you work as a programmer) or school, if an
   File name:             README.md
   Relative path:         README.md
   Absolute path:         /home/kushal/src/rust/myinkbird/README.md
-  Size:                  11.6 KiB (11889 bytes)
-  Last modified:         2026-07-08 17:23:40.000000000 -0400
+  Size:                  11.5 KiB (11875 bytes)
+  Last modified:         2026-07-09 05:02:17.989162978 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
   Inode:                 20099660
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               daa1cd5e9a0784158219f4995fb04a79375a4ee1c7920302d8f5e2f3d1fb08cc
+  SHA-256:               70834d7da89c4d9c62fcdda252f93c61a6108ef9603302974264e419371cdcb5
   Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
 
 --- CONTENT ---
@@ -4978,32 +4979,32 @@ a substring of its advertised name (`ith-13-b` by default).
 
 ```text
    ┌────────────────────┐
-   │  INKBIRD ITH-13-B   │  broadcasts BLE advertisements
-   │  (2×AAA battery)    │  (temperature, humidity, battery %)
+   │  INKBIRD ITH-13-B  │  broadcasts BLE advertisements
+   │  (2×AAA battery)   │  (temperature, humidity, battery %)
    └─────────┬──────────┘
              │  radio  (listen-only; the sensor is never connected to)
              ▼
    ┌────────────────────┐
-   │  Host BlueZ         │  bluetoothd owns the adapter
-   │  (bluetoothd)       │
+   │  Host BlueZ        │  bluetoothd owns the adapter
+   │  (bluetoothd)      │
    └─────────┬──────────┘
              │  D-Bus system socket (bind-mounted into the container)
              ▼
 ┌──────────────────────────────────────────────┐
-│  collector container (Rust, btleplug)         │
-│    scanner → decode (inkbird-core)            │
-│           → throttle → append NDJSON           │
-└───────────────────┬───────────────────────────┘
+│  collector container (Rust, btleplug)        │
+│    scanner → decode (inkbird-core)           │
+│           → throttle → append NDJSON         │
+└───────────────────┬──────────────────────────┘
                     │  /data/readings/YYYY-MM-DD.ndjson
                     ▼
         ┌───────────────────────────┐
-        │  inkbird-data volume       │
+        │  inkbird-data volume      │
         └───────────┬───────────────┘
                     │  git add / commit on an interval (never pushed)
                     ▼
         ┌───────────────────────────┐
-        │  committer container       │
-        │  local git repo in /data   │
+        │  committer container      │
+        │  local git repo in /data  │
         └───────────────────────────┘
 ```
 
@@ -5676,9 +5677,9 @@ log "tests complete"
 # DUMP SUMMARY
 ################################################################################
   Files dumped   : 52
-  Total size     : 179.8 KiB (184209 bytes)
+  Total size     : 179.8 KiB (184195 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-09T04:54:36-04:00
+  Completed at   : 2026-07-09T05:04:10-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
