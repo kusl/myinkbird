@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-08T21:50:16-04:00
+  Generated at   : 2026-07-08T21:55:59-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,11 +17,11 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/mypython/myinkbird
   Branch         : main
-  Commit (full)  : 3695a73ecef5d807ac1f5f8818a247a22a9f585a
-  Commit (short) : 3695a73
-  Commit date    : 2026-07-08 21:50:09 -0400
-  Commit message : add missing hidden files
-  Remote origin  : none
+  Commit (full)  : 9503d5d814e325b97b4da184d88c71d4813d92f1
+  Commit (short) : 9503d5d
+  Commit date    : 2026-07-08 21:54:23 -0400
+  Commit message : add dumps to the repository
+  Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 52
   Excluded path  : docs/llm/
   Excluded files : yarn.lock
@@ -29,6 +29,7 @@ REPOSITORY METADATA
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
  M docs/llm/vendor/output.txt
+?? docs/llm/vendor/claude-0002.md
 
 ################################################################################
 # FILE: export.sh  [THIS SCRIPT — included for full context]
@@ -4597,15 +4598,15 @@ jobs:
   File name:             .gitignore
   Relative path:         .gitignore
   Absolute path:         /home/kushal/src/mypython/myinkbird/.gitignore
-  Size:                  306 B (306 bytes)
-  Last modified:         2026-07-08 17:14:28.000000000 -0400
+  Size:                  234 B (234 bytes)
+  Last modified:         2026-07-08 21:54:07.600712806 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
   Inode:                 20099693
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               0ec70a6ae6beb9b001f818c45796f30894efe7399fe75dbddd965461b0429d36
-  Last git commit:       3695a73 2026-07-08 21:50:09 -0400 add missing hidden files
+  SHA-256:               951fecc2c8f97d06c2d77aac822c86f56c8112e2e9706e079389e3dade68f9c5
+  Last git commit:       9503d5d 2026-07-08 21:54:23 -0400 add dumps to the repository
 
 --- CONTENT ---
 # Rust build output
@@ -4616,9 +4617,6 @@ jobs:
 
 # Local data produced by a non-container run of the collector
 /data
-
-# LLM context dumps produced by export.sh (never committed)
-/docs/llm/
 
 # Editor / OS noise
 .vscode/
@@ -5670,9 +5668,9 @@ log "tests complete"
 # DUMP SUMMARY
 ################################################################################
   Files dumped   : 52
-  Total size     : 179.5 KiB (183891 bytes)
+  Total size     : 179.5 KiB (183819 bytes)
   Output file    : /home/kushal/src/mypython/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-08T21:50:18-04:00
+  Completed at   : 2026-07-08T21:56:01-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
