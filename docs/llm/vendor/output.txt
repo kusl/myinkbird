@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-08T22:04:55-04:00
+  Generated at   : 2026-07-08T22:06:12-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -15,11 +15,11 @@ DUMP METADATA
 
 REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Repository root: /home/kushal/src/mypython/myinkbird
+  Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : 87d4f55e81b118402fff5e203e7e6f4201f13e3d
-  Commit (short) : 87d4f55
-  Commit date    : 2026-07-08 21:57:45 -0400
+  Commit (full)  : 5370a0b129216d1f04f48a570d822bf387562b41
+  Commit (short) : 5370a0b
+  Commit date    : 2026-07-08 22:05:13 -0400
   Commit message : run dump
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 52
@@ -499,7 +499,7 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
 --- METADATA ---
   File name:             Cargo.toml
   Relative path:         Cargo.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/Cargo.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/Cargo.toml
   Size:                  1.7 KiB (1793 bytes)
   Last modified:         2026-07-08 17:05:23.000000000 -0400
   Permissions:           -rw-r--r--
@@ -591,7 +591,7 @@ panic = "abort"
 --- METADATA ---
   File name:             CHANGELOG.md
   Relative path:         CHANGELOG.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/CHANGELOG.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/CHANGELOG.md
   Size:                  2.3 KiB (2381 bytes)
   Last modified:         2026-07-08 17:22:10.000000000 -0400
   Permissions:           -rw-r--r--
@@ -662,7 +662,7 @@ Initial scaffold.
 --- METADATA ---
   File name:             compose.yaml
   Relative path:         compose.yaml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/compose.yaml
+  Absolute path:         /home/kushal/src/rust/myinkbird/compose.yaml
   Size:                  1.7 KiB (1808 bytes)
   Last modified:         2026-07-08 17:24:43.000000000 -0400
   Permissions:           -rw-r--r--
@@ -730,7 +730,7 @@ volumes:
 --- METADATA ---
   File name:             Containerfile
   Relative path:         Containerfile
-  Absolute path:         /home/kushal/src/mypython/myinkbird/Containerfile
+  Absolute path:         /home/kushal/src/rust/myinkbird/Containerfile
   Size:                  1.3 KiB (1385 bytes)
   Last modified:         2026-07-08 17:12:43.000000000 -0400
   Permissions:           -rw-r--r--
@@ -784,7 +784,7 @@ CMD ["collect"]
 --- METADATA ---
   File name:             Containerfile.committer
   Relative path:         Containerfile.committer
-  Absolute path:         /home/kushal/src/mypython/myinkbird/Containerfile.committer
+  Absolute path:         /home/kushal/src/rust/myinkbird/Containerfile.committer
   Size:                  413 B (413 bytes)
   Last modified:         2026-07-08 17:12:48.000000000 -0400
   Permissions:           -rw-r--r--
@@ -816,7 +816,7 @@ ENTRYPOINT ["/usr/local/bin/commit-loop.sh"]
 --- METADATA ---
   File name:             CONTRIBUTING.md
   Relative path:         CONTRIBUTING.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/CONTRIBUTING.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/CONTRIBUTING.md
   Size:                  5.5 KiB (5638 bytes)
   Last modified:         2026-07-08 17:24:55.000000000 -0400
   Permissions:           -rw-r--r--
@@ -954,7 +954,7 @@ do not need it for normal development.
 --- METADATA ---
   File name:             Cargo.toml
   Relative path:         crates/inkbird-collector/Cargo.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/Cargo.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/Cargo.toml
   Size:                  1.1 KiB (1161 bytes)
   Last modified:         2026-07-08 17:06:56.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1017,7 +1017,7 @@ pedantic = { level = "warn", priority = -1 }
 --- METADATA ---
   File name:             config.rs
   Relative path:         crates/inkbird-collector/src/config.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/config.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/config.rs
   Size:                  4.0 KiB (4168 bytes)
   Last modified:         2026-07-08 17:08:40.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1165,7 +1165,7 @@ mod tests {
 --- METADATA ---
   File name:             main.rs
   Relative path:         crates/inkbird-collector/src/main.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/main.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/main.rs
   Size:                  2.6 KiB (2702 bytes)
   Last modified:         2026-07-08 17:11:09.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1271,7 +1271,7 @@ fn init_tracing() {
 --- METADATA ---
   File name:             ndjson_sink.rs
   Relative path:         crates/inkbird-collector/src/ndjson_sink.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/ndjson_sink.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/ndjson_sink.rs
   Size:                  4.1 KiB (4203 bytes)
   Last modified:         2026-07-08 17:07:46.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1416,7 +1416,7 @@ mod tests {
 --- METADATA ---
   File name:             record.rs
   Relative path:         crates/inkbird-collector/src/record.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/record.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/record.rs
   Size:                  4.1 KiB (4254 bytes)
   Last modified:         2026-07-08 17:07:16.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1570,7 +1570,7 @@ mod tests {
 --- METADATA ---
   File name:             scanner.rs
   Relative path:         crates/inkbird-collector/src/scanner.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/scanner.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/scanner.rs
   Size:                  11.4 KiB (11733 bytes)
   Last modified:         2026-07-08 17:10:54.000000000 -0400
   Permissions:           -rw-r--r--
@@ -1947,7 +1947,7 @@ mod tests {
 --- METADATA ---
   File name:             shutdown.rs
   Relative path:         crates/inkbird-collector/src/shutdown.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/shutdown.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/shutdown.rs
   Size:                  1.0 KiB (1108 bytes)
   Last modified:         2026-07-08 17:10:07.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2005,7 +2005,7 @@ pub async fn shutdown_signal() {
 --- METADATA ---
   File name:             sink.rs
   Relative path:         crates/inkbird-collector/src/sink.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/sink.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/sink.rs
   Size:                  2.2 KiB (2264 bytes)
   Last modified:         2026-07-08 17:07:27.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2109,7 +2109,7 @@ mod tests {
 --- METADATA ---
   File name:             throttle.rs
   Relative path:         crates/inkbird-collector/src/throttle.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-collector/src/throttle.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/throttle.rs
   Size:                  6.5 KiB (6680 bytes)
   Last modified:         2026-07-08 17:08:15.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2334,7 +2334,7 @@ mod tests {
 --- METADATA ---
   File name:             Cargo.toml
   Relative path:         crates/inkbird-core/Cargo.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-core/Cargo.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/Cargo.toml
   Size:                  712 B (712 bytes)
   Last modified:         2026-07-08 17:05:29.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2379,7 +2379,7 @@ pedantic = { level = "warn", priority = -1 }
 --- METADATA ---
   File name:             lib.rs
   Relative path:         crates/inkbird-core/src/lib.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-core/src/lib.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/lib.rs
   Size:                  2.3 KiB (2359 bytes)
   Last modified:         2026-07-08 17:05:44.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2453,7 +2453,7 @@ pub use parser::{
 --- METADATA ---
   File name:             model.rs
   Relative path:         crates/inkbird-core/src/model.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-core/src/model.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/model.rs
   Size:                  2.7 KiB (2777 bytes)
   Last modified:         2026-07-08 17:05:58.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2546,7 +2546,7 @@ pub enum ParseError {
 --- METADATA ---
   File name:             parser.rs
   Relative path:         crates/inkbird-core/src/parser.rs
-  Absolute path:         /home/kushal/src/mypython/myinkbird/crates/inkbird-core/src/parser.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-core/src/parser.rs
   Size:                  10.1 KiB (10415 bytes)
   Last modified:         2026-07-08 17:06:47.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2877,7 +2877,7 @@ mod tests {
 --- METADATA ---
   File name:             deny.toml
   Relative path:         deny.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/deny.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/deny.toml
   Size:                  1.1 KiB (1176 bytes)
   Last modified:         2026-07-08 17:14:05.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2943,7 +2943,7 @@ allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 --- METADATA ---
   File name:             0001-record-architecture-decisions.md
   Relative path:         docs/adr/0001-record-architecture-decisions.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0001-record-architecture-decisions.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0001-record-architecture-decisions.md
   Size:                  1.1 KiB (1141 bytes)
   Last modified:         2026-07-08 17:20:12.000000000 -0400
   Permissions:           -rw-r--r--
@@ -2992,7 +2992,7 @@ link to its ADR. See <https://adr.github.io/> for the practice.
 --- METADATA ---
   File name:             0002-rust-and-btleplug.md
   Relative path:         docs/adr/0002-rust-and-btleplug.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0002-rust-and-btleplug.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0002-rust-and-btleplug.md
   Size:                  2.0 KiB (2091 bytes)
   Last modified:         2026-07-08 17:20:26.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3060,7 +3060,7 @@ crate so it can be unit-tested without any Bluetooth, async, or I/O.
 --- METADATA ---
   File name:             0003-listen-only-never-connect.md
   Relative path:         docs/adr/0003-listen-only-never-connect.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0003-listen-only-never-connect.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0003-listen-only-never-connect.md
   Size:                  2.2 KiB (2315 bytes)
   Last modified:         2026-07-08 17:20:40.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3128,7 +3128,7 @@ See `docs/bluetooth.md` for the operational details and troubleshooting.
 --- METADATA ---
   File name:             0004-podman-and-containerfile-only.md
   Relative path:         docs/adr/0004-podman-and-containerfile-only.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0004-podman-and-containerfile-only.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0004-podman-and-containerfile-only.md
   Size:                  1.7 KiB (1743 bytes)
   Last modified:         2026-07-08 17:24:47.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3185,7 +3185,7 @@ tooling and forward-looking (ready for current Podman releases as they land).
 --- METADATA ---
   File name:             0005-bluetooth-via-host-bluez-dbus.md
   Relative path:         docs/adr/0005-bluetooth-via-host-bluez-dbus.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0005-bluetooth-via-host-bluez-dbus.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0005-bluetooth-via-host-bluez-dbus.md
   Size:                  2.2 KiB (2341 bytes)
   Last modified:         2026-07-08 17:21:05.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3257,7 +3257,7 @@ implications of scanning are covered in
 --- METADATA ---
   File name:             0006-local-git-ndjson-storage.md
   Relative path:         docs/adr/0006-local-git-ndjson-storage.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0006-local-git-ndjson-storage.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0006-local-git-ndjson-storage.md
   Size:                  1.8 KiB (1885 bytes)
   Last modified:         2026-07-08 17:21:18.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3318,7 +3318,7 @@ data; it should not leave the machine unless the owner chooses).
 --- METADATA ---
   File name:             0007-agpl-and-dependency-policy.md
   Relative path:         docs/adr/0007-agpl-and-dependency-policy.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0007-agpl-and-dependency-policy.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0007-agpl-and-dependency-policy.md
   Size:                  2.0 KiB (2139 bytes)
   Last modified:         2026-07-08 17:21:32.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3384,7 +3384,7 @@ others may use the project. In particular we want to avoid:
 --- METADATA ---
   File name:             0008-slim-ci-delegating-to-bash.md
   Relative path:         docs/adr/0008-slim-ci-delegating-to-bash.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0008-slim-ci-delegating-to-bash.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0008-slim-ci-delegating-to-bash.md
   Size:                  1.4 KiB (1507 bytes)
   Last modified:         2026-07-08 17:21:42.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3438,7 +3438,7 @@ CI kept **as slim as possible**, with the real work living in scripts.
 --- METADATA ---
   File name:             0009-always-latest-dependencies.md
   Relative path:         docs/adr/0009-always-latest-dependencies.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/0009-always-latest-dependencies.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0009-always-latest-dependencies.md
   Size:                  1.9 KiB (1999 bytes)
   Last modified:         2026-07-08 17:21:56.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3501,7 +3501,7 @@ exposure to current idioms.
 --- METADATA ---
   File name:             README.md
   Relative path:         docs/adr/README.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/adr/README.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/README.md
   Size:                  2.3 KiB (2371 bytes)
   Last modified:         2026-07-08 17:20:04.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3558,7 +3558,7 @@ original ADR write-up and the MADR template. For background see
 --- METADATA ---
   File name:             architecture.md
   Relative path:         docs/architecture.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/architecture.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/architecture.md
   Size:                  7.5 KiB (7750 bytes)
   Last modified:         2026-07-08 17:17:51.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3733,7 +3733,7 @@ Step by step:
 --- METADATA ---
   File name:             bluetooth.md
   Relative path:         docs/bluetooth.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/bluetooth.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/bluetooth.md
   Size:                  7.0 KiB (7211 bytes)
   Last modified:         2026-07-08 17:18:31.000000000 -0400
   Permissions:           -rw-r--r--
@@ -3922,7 +3922,7 @@ Install either the `podman compose` plugin or `podman-compose`. The scripts try
 --- METADATA ---
   File name:             data-format.md
   Relative path:         docs/data-format.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/docs/data-format.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/data-format.md
   Size:                  6.1 KiB (6274 bytes)
   Last modified:         2026-07-08 17:19:50.000000000 -0400
   Permissions:           -rw-r--r--
@@ -4083,7 +4083,7 @@ data elsewhere, copy the files or add a remote yourself, deliberately.
 --- METADATA ---
   File name:             .env.example
   Relative path:         .env.example
-  Absolute path:         /home/kushal/src/mypython/myinkbird/.env.example
+  Absolute path:         /home/kushal/src/rust/myinkbird/.env.example
   Size:                  891 B (891 bytes)
   Last modified:         2026-07-08 17:14:28.000000000 -0400
   Permissions:           -rw-r--r--
@@ -4127,7 +4127,7 @@ COMMIT_INTERVAL_SECS=300
 --- METADATA ---
   File name:             export.sh
   Relative path:         export.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/export.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/export.sh
   Size:                  16.6 KiB (17022 bytes)
   Last modified:         2026-07-01 14:42:09.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -4526,7 +4526,7 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
 --- METADATA ---
   File name:             ci.yml
   Relative path:         .github/workflows/ci.yml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/.github/workflows/ci.yml
+  Absolute path:         /home/kushal/src/rust/myinkbird/.github/workflows/ci.yml
   Size:                  1.2 KiB (1307 bytes)
   Last modified:         2026-07-08 17:14:15.000000000 -0400
   Permissions:           -rw-r--r--
@@ -4596,7 +4596,7 @@ jobs:
 --- METADATA ---
   File name:             .gitignore
   Relative path:         .gitignore
-  Absolute path:         /home/kushal/src/mypython/myinkbird/.gitignore
+  Absolute path:         /home/kushal/src/rust/myinkbird/.gitignore
   Size:                  234 B (234 bytes)
   Last modified:         2026-07-08 21:54:07.600712806 -0400
   Permissions:           -rw-r--r--
@@ -4631,7 +4631,7 @@ jobs:
 --- METADATA ---
   File name:             LICENSE
   Relative path:         LICENSE
-  Absolute path:         /home/kushal/src/mypython/myinkbird/LICENSE
+  Absolute path:         /home/kushal/src/rust/myinkbird/LICENSE
   Size:                  33.2 KiB (34020 bytes)
   Last modified:         2026-07-08 17:05:11.000000000 -0400
   Permissions:           -rw-r--r--
@@ -4887,7 +4887,7 @@ You should also get your employer (if you work as a programmer) or school, if an
 --- METADATA ---
   File name:             README.md
   Relative path:         README.md
-  Absolute path:         /home/kushal/src/mypython/myinkbird/README.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/README.md
   Size:                  11.6 KiB (11889 bytes)
   Last modified:         2026-07-08 17:23:40.000000000 -0400
   Permissions:           -rw-r--r--
@@ -5152,7 +5152,7 @@ Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 --- METADATA ---
   File name:             rustfmt.toml
   Relative path:         rustfmt.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/rustfmt.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/rustfmt.toml
   Size:                  157 B (157 bytes)
   Last modified:         2026-07-08 17:14:28.000000000 -0400
   Permissions:           -rw-r--r--
@@ -5176,7 +5176,7 @@ edition = "2024"
 --- METADATA ---
   File name:             rust-toolchain.toml
   Relative path:         rust-toolchain.toml
-  Absolute path:         /home/kushal/src/mypython/myinkbird/rust-toolchain.toml
+  Absolute path:         /home/kushal/src/rust/myinkbird/rust-toolchain.toml
   Size:                  283 B (283 bytes)
   Last modified:         2026-07-08 17:14:28.000000000 -0400
   Permissions:           -rw-r--r--
@@ -5203,7 +5203,7 @@ components = ["rustfmt", "clippy"]
 --- METADATA ---
   File name:             build.sh
   Relative path:         scripts/build.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/build.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/build.sh
   Size:                  308 B (308 bytes)
   Last modified:         2026-07-08 17:13:44.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5235,7 +5235,7 @@ log "build complete"
 --- METADATA ---
   File name:             ci.sh
   Relative path:         scripts/ci.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/ci.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/ci.sh
   Size:                  538 B (538 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5272,7 +5272,7 @@ log "CI pipeline finished"
 --- METADATA ---
   File name:             commit-loop.sh
   Relative path:         scripts/commit-loop.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/commit-loop.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/commit-loop.sh
   Size:                  1.0 KiB (1026 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5325,7 +5325,7 @@ done
 --- METADATA ---
   File name:             container-build.sh
   Relative path:         scripts/container-build.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/container-build.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/container-build.sh
   Size:                  526 B (526 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5359,7 +5359,7 @@ log "images built"
 --- METADATA ---
   File name:             deny.sh
   Relative path:         scripts/deny.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/deny.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/deny.sh
   Size:                  482 B (482 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5395,7 +5395,7 @@ log "supply-chain checks complete"
 --- METADATA ---
   File name:             install-system-deps.sh
   Relative path:         scripts/install-system-deps.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/install-system-deps.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/install-system-deps.sh
   Size:                  1.0 KiB (1044 bytes)
   Last modified:         2026-07-08 17:13:44.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5436,7 +5436,7 @@ log "system dependencies installed"
 --- METADATA ---
   File name:             lib.sh
   Relative path:         scripts/lib.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/lib.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/lib.sh
   Size:                  2.2 KiB (2296 bytes)
   Last modified:         2026-07-08 17:13:13.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5524,7 +5524,7 @@ ensure_rust() {
 --- METADATA ---
   File name:             lint.sh
   Relative path:         scripts/lint.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/lint.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/lint.sh
   Size:                  475 B (475 bytes)
   Last modified:         2026-07-08 17:13:44.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5559,7 +5559,7 @@ log "lint complete"
 --- METADATA ---
   File name:             run.sh
   Relative path:         scripts/run.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/run.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/run.sh
   Size:                  717 B (717 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5601,7 +5601,7 @@ log "stack started. Follow logs with: sudo podman compose logs -f"
 --- METADATA ---
   File name:             stop.sh
   Relative path:         scripts/stop.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/stop.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/stop.sh
   Size:                  428 B (428 bytes)
   Last modified:         2026-07-08 17:13:45.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5638,7 +5638,7 @@ log "stack stopped"
 --- METADATA ---
   File name:             test.sh
   Relative path:         scripts/test.sh
-  Absolute path:         /home/kushal/src/mypython/myinkbird/scripts/test.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/test.sh
   Size:                  279 B (279 bytes)
   Last modified:         2026-07-08 17:13:44.000000000 -0400
   Permissions:           -rwxr-xr-x
@@ -5668,8 +5668,8 @@ log "tests complete"
 ################################################################################
   Files dumped   : 52
   Total size     : 179.5 KiB (183819 bytes)
-  Output file    : /home/kushal/src/mypython/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-08T22:04:57-04:00
+  Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
+  Completed at   : 2026-07-08T22:06:14-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
