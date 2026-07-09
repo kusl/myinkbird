@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-09T05:04:08-04:00
+  Generated at   : 2026-07-09T05:08:04-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : 9f2e86b9c7aaf744349a57784ecd7602bc6a4fca
-  Commit (short) : 9f2e86b
-  Commit date    : 2026-07-09 04:54:44 -0400
-  Commit message : run dump
+  Commit (full)  : 153e8e0b3c811ca8e419d905ea959a337c94f109
+  Commit (short) : 153e8e0
+  Commit date    : 2026-07-09 05:04:39 -0400
+  Commit message : clean up ijmage in readme
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 52
   Excluded path  : docs/llm/
@@ -28,7 +28,6 @@ REPOSITORY METADATA
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
- M README.md
  M docs/llm/vendor/output.txt
 
 ################################################################################
@@ -4906,7 +4905,7 @@ You should also get your employer (if you work as a programmer) or school, if an
   Hard links:            1
   MIME type:             text/plain
   SHA-256:               70834d7da89c4d9c62fcdda252f93c61a6108ef9603302974264e419371cdcb5
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  Last git commit:       153e8e0 2026-07-09 05:04:39 -0400 clean up ijmage in readme
 
 --- CONTENT ---
 # myinkbird
@@ -5679,7 +5678,7 @@ log "tests complete"
   Files dumped   : 52
   Total size     : 179.8 KiB (184195 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-09T05:04:10-04:00
+  Completed at   : 2026-07-09T05:08:06-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
