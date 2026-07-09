@@ -120,5 +120,4 @@ relevant docs in the **same PR**:
 
 The repository includes an `export.sh` that dumps the git-tracked source into
 `docs/llm/dump.txt` for feeding into an AI assistant. It is a developer
-convenience; `docs/llm/` is git-ignored and its output is never committed. You
-do not need it for normal development.
+convenience; You do not need it for normal development.

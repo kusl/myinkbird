@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-09T08:07:08-04:00
+  Generated at   : 2026-07-09T08:19:44-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : 39d22642e8b9f1dc33c11c668b681a7ca4a39582
-  Commit (short) : 39d2264
-  Commit date    : 2026-07-09 08:06:59 -0400
-  Commit message : clean up
+  Commit (full)  : d394958b6dd537ef186859a551f0a557073494d8
+  Commit (short) : d394958
+  Commit date    : 2026-07-09 08:07:25 -0400
+  Commit message : run dump
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 56
   Excluded path  : docs/llm/
@@ -28,6 +28,7 @@ REPOSITORY METADATA
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
+ M CONTRIBUTING.md
  M docs/llm/vendor/output.txt
 
 ################################################################################
@@ -2227,14 +2228,14 @@ ENTRYPOINT ["/usr/local/bin/commit-loop.sh"]
   File name:             CONTRIBUTING.md
   Relative path:         CONTRIBUTING.md
   Absolute path:         /home/kushal/src/rust/myinkbird/CONTRIBUTING.md
-  Size:                  6.0 KiB (6176 bytes)
-  Last modified:         2026-07-09 09:56:48.000000000 -0400
+  Size:                  5.9 KiB (6114 bytes)
+  Last modified:         2026-07-09 08:19:34.711012078 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
   Inode:                 20185160
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               7210cd5e095d12f8b51b07c47328307ffffa9dd08b85784ddf577754356b978a
+  SHA-256:               be18babeaff80bdb95df98b4caaee2999d86017809e1341e67595ae0b4948fad
   Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
 
 --- CONTENT ---
@@ -2360,8 +2361,7 @@ relevant docs in the **same PR**:
 
 The repository includes an `export.sh` that dumps the git-tracked source into
 `docs/llm/dump.txt` for feeding into an AI assistant. It is a developer
-convenience; `docs/llm/` is git-ignored and its output is never committed. You
-do not need it for normal development.
+convenience; You do not need it for normal development.
 
 
 ################################################################################
@@ -7461,9 +7461,9 @@ log "tests complete"
 # DUMP SUMMARY
 ################################################################################
   Files dumped   : 56
-  Total size     : 231.7 KiB (237263 bytes)
+  Total size     : 231.6 KiB (237201 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-09T08:07:10-04:00
+  Completed at   : 2026-07-09T08:19:45-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
