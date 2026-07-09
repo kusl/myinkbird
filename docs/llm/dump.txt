@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-07-08T21:48:55-04:00
+  Generated at   : 2026-07-08T21:50:16-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,18 +17,18 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/mypython/myinkbird
   Branch         : main
-  Commit (full)  : f659aadeed69a201b4dacd863e0e00379a433dde
-  Commit (short) : f659aad
-  Commit date    : 2026-07-08 21:48:29 -0400
-  Commit message : run dump
+  Commit (full)  : 3695a73ecef5d807ac1f5f8818a247a22a9f585a
+  Commit (short) : 3695a73
+  Commit date    : 2026-07-08 21:50:09 -0400
+  Commit message : add missing hidden files
   Remote origin  : none
-  Files included : 49
+  Files included : 52
   Excluded path  : docs/llm/
   Excluded files : yarn.lock
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
- M export.sh
+ M docs/llm/vendor/output.txt
 
 ################################################################################
 # FILE: export.sh  [THIS SCRIPT — included for full context]
@@ -424,7 +424,7 @@ FOOTER
 mv -f "$TMP_FILE" "$OUTPUT_FILE"
 
 ################################################################################
-# FILE TREE  (all 49 included files)
+# FILE TREE  (all 52 included files)
 ################################################################################
 .
 .
@@ -468,7 +468,12 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
 │   ├── architecture.md
 │   ├── bluetooth.md
 │   └── data-format.md
+├── .env.example
 ├── export.sh
+├── .github
+│   └── workflows
+│       └── ci.yml
+├── .gitignore
 ├── LICENSE
 ├── README.md
 ├── rustfmt.toml
@@ -4072,6 +4077,50 @@ data elsewhere, copy the files or add a remote yourself, deliberately.
 
 
 ################################################################################
+# FILE: .env.example
+################################################################################
+
+--- METADATA ---
+  File name:             .env.example
+  Relative path:         .env.example
+  Absolute path:         /home/kushal/src/mypython/myinkbird/.env.example
+  Size:                  891 B (891 bytes)
+  Last modified:         2026-07-08 17:14:28.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 20099696
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               c16de28452f10d4ce7e48942f95fa962b4be09a76d30bb2c975ae0983d616e9e
+  Last git commit:       3695a73 2026-07-08 21:50:09 -0400 add missing hidden files
+
+--- CONTENT ---
+# Copy to .env and adjust. scripts/run.sh and compose read these.
+# (.env is git-ignored by convention; do not commit real values.)
+
+# Logging verbosity for the collector (error|warn|info|debug|trace).
+RUST_LOG=info
+
+# STRONGLY RECOMMENDED: your sensor's Bluetooth address, found via:
+#   sudo podman run --rm --security-opt label=disable \
+#     -v /run/dbus/system_bus_socket:/run/dbus/system_bus_socket \
+#     localhost/myinkbird-collector:latest discover
+# Leave empty to match by advertised name instead.
+INKBIRD_ADDRESS=
+
+# When no address is set, match devices whose name contains this substring.
+INKBIRD_NAME_MATCH=ith-13-b
+
+# Minimum seconds between recorded readings for an unchanged sensor.
+INKBIRD_MIN_INTERVAL_SECS=60
+
+# Committer identity and interval (local commits only; never pushed).
+GIT_AUTHOR_NAME=myinkbird
+GIT_AUTHOR_EMAIL=myinkbird@localhost
+COMMIT_INTERVAL_SECS=300
+
+
+################################################################################
 # FILE: export.sh
 ################################################################################
 
@@ -4087,7 +4136,7 @@ data elsewhere, copy the files or add a remote yourself, deliberately.
   Hard links:            1
   MIME type:             text/x-shellscript
   SHA-256:               542323f8128dfce4873eee0c14719b64363244b398ee99c4ad780a82ab240739
-  Last git commit:       c5b34e5 2026-07-08 21:47:45 -0400 add all files from claude
+  Last git commit:       0993680 2026-07-08 21:49:24 -0400 revert change to export.sh
 
 --- CONTENT ---
 #!/usr/bin/env bash
@@ -4468,6 +4517,114 @@ FOOTER
 # 9. Atomic rename — avoids partial writes being read by concurrent processes
 # ---------------------------------------------------------------------------
 mv -f "$TMP_FILE" "$OUTPUT_FILE"
+
+
+################################################################################
+# FILE: .github/workflows/ci.yml
+################################################################################
+
+--- METADATA ---
+  File name:             ci.yml
+  Relative path:         .github/workflows/ci.yml
+  Absolute path:         /home/kushal/src/mypython/myinkbird/.github/workflows/ci.yml
+  Size:                  1.2 KiB (1307 bytes)
+  Last modified:         2026-07-08 17:14:15.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 20099659
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               18e82ee2fcbe01fa6413257ab0d86791d8ccf277a71eb8aa1f022d498324758f
+  Last git commit:       3695a73 2026-07-08 21:50:09 -0400 add missing hidden files
+
+--- CONTENT ---
+# Slim CI: the workflow only checks out the code, restores a cache, and calls
+# bash scripts that hold the real logic. This keeps the pipeline reproducible
+# locally (run ./scripts/ci.sh) and provider-agnostic. See docs/adr/0008.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least-privilege: this workflow only needs to read the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: lint, build, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.toml', '**/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+      - run: ./scripts/ci.sh
+
+  supply-chain:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+          key: deny-${{ runner.os }}-${{ hashFiles('**/Cargo.toml', 'deny.toml') }}
+          restore-keys: deny-${{ runner.os }}-
+      - run: ./scripts/deny.sh
+
+
+################################################################################
+# FILE: .gitignore
+################################################################################
+
+--- METADATA ---
+  File name:             .gitignore
+  Relative path:         .gitignore
+  Absolute path:         /home/kushal/src/mypython/myinkbird/.gitignore
+  Size:                  306 B (306 bytes)
+  Last modified:         2026-07-08 17:14:28.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 20099693
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               0ec70a6ae6beb9b001f818c45796f30894efe7399fe75dbddd965461b0429d36
+  Last git commit:       3695a73 2026-07-08 21:50:09 -0400 add missing hidden files
+
+--- CONTENT ---
+# Rust build output
+/target
+**/*.rs.bk
+
+# Cargo lock is committed for the binary workspace (kept, not ignored).
+
+# Local data produced by a non-container run of the collector
+/data
+
+# LLM context dumps produced by export.sh (never committed)
+/docs/llm/
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+.DS_Store
 
 
 ################################################################################
@@ -5512,10 +5669,10 @@ log "tests complete"
 ################################################################################
 # DUMP SUMMARY
 ################################################################################
-  Files dumped   : 49
-  Total size     : 177.1 KiB (181387 bytes)
+  Files dumped   : 52
+  Total size     : 179.5 KiB (183891 bytes)
   Output file    : /home/kushal/src/mypython/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-07-08T21:48:56-04:00
+  Completed at   : 2026-07-08T21:50:18-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
