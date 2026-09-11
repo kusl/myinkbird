@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-09-11T03:11:57-04:00
+  Generated at   : 2026-09-11T07:26:04-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,12 +17,12 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : 5e30c3447f74d06a4b2ac669ae017a7dd1277630
-  Commit (short) : 5e30c34
-  Commit date    : 2026-09-08 07:57:40 -0400
-  Commit message : run scripts
+  Commit (full)  : f5d335fbfdd8ca71d519dc6c3e0840390aa5ae5d
+  Commit (short) : f5d335f
+  Commit date    : 2026-09-11 07:25:52 -0400
+  Commit message : add claude response
   Remote origin  : git@github.com:kusl/myinkbird.git
-  Files included : 56
+  Files included : 63
   Excluded path  : docs/llm/
   Excluded files : yarn.lock
 
@@ -424,7 +424,7 @@ FOOTER
 mv -f "$TMP_FILE" "$OUTPUT_FILE"
 
 ################################################################################
-# FILE TREE  (all 56 included files)
+# FILE TREE  (all 63 included files)
 ################################################################################
 .
 .
@@ -440,12 +440,14 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
 │   │   ├── Cargo.toml
 │   │   └── src
 │   │       ├── config.rs
+│   │       ├── data_dir.rs
 │   │       ├── main.rs
 │   │       ├── ndjson_sink.rs
 │   │       ├── record.rs
 │   │       ├── scanner.rs
 │   │       ├── shutdown.rs
 │   │       ├── sink.rs
+│   │       ├── stdout_sink.rs
 │   │       └── throttle.rs
 │   └── inkbird-core
 │       ├── Cargo.toml
@@ -466,15 +468,18 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
 │   │   ├── 0008-slim-ci-delegating-to-bash.md
 │   │   ├── 0009-always-latest-dependencies.md
 │   │   ├── 0010-build-images-rootful.md
+│   │   ├── 0011-prebuilt-release-binaries.md
 │   │   └── README.md
 │   ├── architecture.md
 │   ├── bluetooth.md
-│   └── data-format.md
+│   ├── data-format.md
+│   └── releases.md
 ├── .env.example
 ├── export.sh
 ├── .github
 │   └── workflows
-│       └── ci.yml
+│       ├── ci.yml
+│       └── release.yml
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -491,6 +496,8 @@ mv -f "$TMP_FILE" "$OUTPUT_FILE"
     ├── lib.sh
     ├── lint.sh
     ├── logs.sh
+    ├── release-build.sh
+    ├── release-publish.sh
     ├── run.sh
     ├── stop.sh
     └── test.sh
@@ -1938,15 +1945,15 @@ panic = "abort"
   File name:             CHANGELOG.md
   Relative path:         CHANGELOG.md
   Absolute path:         /home/kushal/src/rust/myinkbird/CHANGELOG.md
-  Size:                  4.8 KiB (4934 bytes)
-  Last modified:         2026-07-09 09:53:40.000000000 -0400
+  Size:                  6.4 KiB (6637 bytes)
+  Last modified:         2026-09-11 03:47:03.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185150
+  Inode:                 63570397
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               8438a0f080c95c190c8bb94913173526d059e95d64c5abf27167db47ed69bb93
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               beeb00acb1838ea25b0f3f87c3fbd1d238347ac7a17bd5bc9093cf0ae6593c8f
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Changelog
@@ -1957,6 +1964,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+- **Prebuilt cross-platform binaries.** `scripts/release-build.sh` builds a
+  self-contained `inkbird-collector` for the host platform and packages it as a
+  `.tar.gz` with a SHA-256 checksum (and the `LICENSE`) into `dist/`;
+  `scripts/release-publish.sh` publishes it via the GitHub CLI. A new
+  `.github/workflows/release.yml` runs the build on a Linux/macOS/Windows matrix
+  and cuts a **full** GitHub release (not a pre-release) on every push to
+  `main`, tagged `v<version>-r<run-number>`. The workflow stays slim and defers
+  to the scripts (see [ADR 0008](docs/adr/0008-slim-ci-delegating-to-bash.md)).
+  See [ADR 0011](docs/adr/0011-prebuilt-release-binaries.md) and
+  [docs/releases.md](docs/releases.md).
+- **Default data-directory resolution for standalone runs** (a new `data_dir`
+  module in the collector). With no `--data-dir` and no `INKBIRD_DATA_DIR`, the
+  binary writes to an XDG-style per-user directory (`XDG_DATA_HOME` or the
+  platform default: `~/.local/share/myinkbird`,
+  `~/Library/Application Support/myinkbird`, or `%APPDATA%\myinkbird`), else the
+  directory containing the executable, else it prints readings to standard
+  output. The resolution is pure and unit-tested.
+- **`StdoutSink`** - a `ReadingSink` that prints readings as NDJSON to standard
+  output, used as the last-resort fallback in the resolution above.
+- `scripts/collect-local.sh` - run the collector directly on the host (no
+  containers) and write readings to the visible `./data` directory; the quickest
+  way to confirm the sensor is seen and readings are being written.
+- `scripts/logs.sh` - follow the running stack's logs (rootful).
+
+### Changed
+
+- **`INKBIRD_DATA_DIR` / `--data-dir` is now optional.** When unset it triggers
+  the default resolution described above; an empty value is treated as "unset"
+  (so a stray `INKBIRD_DATA_DIR=""` no longer writes to `./readings` in the
+  current directory). The container still sets `INKBIRD_DATA_DIR=/data`
+  explicitly, so its behaviour is unchanged.
+- **Readings are stored on the host, not in a named volume.** `compose.yaml`
+  bind-mounts a host directory (default `./data`, override with
+  `INKBIRD_HOST_DATA_DIR`) into both containers at `/data`, so the NDJSON files
+  and their local git history are directly visible and browsable on the host.
+  See [ADR 0006](docs/adr/0006-local-git-ndjson-storage.md).
+- Scripts that need root (`run.sh`, `stop.sh`, `logs.sh`, `container-build.sh`,
+  `collect-local.sh`) now acquire `sudo` **once, up front**, via `ensure_root`
+  in `scripts/lib.sh`, and keep the credential alive in the background for the
+  duration of the run rather than prompting partway through.
+- `deny.toml`: silence "unused allowed license" warnings
+  (`unused-allowed-license = "allow"`) and set `wildcards = "deny"` with
+  `allow-wildcard-paths = true`; the workspace `inkbird-core` dependency now
+  carries a concrete `version`, removing the wildcard/unresolved-workspace
+  diagnostics.
 
 ### Fixed
 
@@ -1978,30 +2033,6 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
   clearing the advisory (and closing a reproducibility gap - the lock was
   previously untracked). The `Containerfile` copies `Cargo.lock` so the image
   builds the same pinned versions.
-
-### Changed
-
-- **Readings are stored on the host, not in a named volume.** `compose.yaml`
-  bind-mounts a host directory (default `./data`, override with
-  `INKBIRD_HOST_DATA_DIR`) into both containers at `/data`, so the NDJSON files
-  and their local git history are directly visible and browsable on the host.
-  See [ADR 0006](docs/adr/0006-local-git-ndjson-storage.md).
-- Scripts that need root (`run.sh`, `stop.sh`, `logs.sh`, `container-build.sh`,
-  `collect-local.sh`) now acquire `sudo` **once, up front**, via `ensure_root`
-  in `scripts/lib.sh`, and keep the credential alive in the background for the
-  duration of the run rather than prompting partway through.
-- `deny.toml`: silence "unused allowed license" warnings
-  (`unused-allowed-license = "allow"`) and set `wildcards = "deny"` with
-  `allow-wildcard-paths = true`; the workspace `inkbird-core` dependency now
-  carries a concrete `version`, removing the wildcard/unresolved-workspace
-  diagnostics.
-
-### Added
-
-- `scripts/collect-local.sh` - run the collector directly on the host (no
-  containers) and write readings to the visible `./data` directory; the quickest
-  way to confirm the sensor is seen and readings are being written.
-- `scripts/logs.sh` - follow the running stack's logs (rootful).
 
 ## [0.1.0] - 2026-07-08
 
@@ -2227,15 +2258,15 @@ ENTRYPOINT ["/usr/local/bin/commit-loop.sh"]
   File name:             CONTRIBUTING.md
   Relative path:         CONTRIBUTING.md
   Absolute path:         /home/kushal/src/rust/myinkbird/CONTRIBUTING.md
-  Size:                  5.9 KiB (6114 bytes)
-  Last modified:         2026-07-09 08:19:34.711012078 -0400
+  Size:                  6.9 KiB (7080 bytes)
+  Last modified:         2026-09-11 03:49:15.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185160
+  Inode:                 63570398
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               be18babeaff80bdb95df98b4caaee2999d86017809e1341e67595ae0b4948fad
-  Last git commit:       62ea822 2026-07-09 08:19:59 -0400 update contributing dot md
+  SHA-256:               e9695892af1b084fca508d944438b1acfd8611371963e73ee3c5edb1e6c07003
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Contributing to myinkbird
@@ -2285,6 +2316,8 @@ for the whole run.
 | `scripts/logs.sh`             | Follow the running stack's logs (rootful)                 |
 | `scripts/stop.sh`             | Stop and remove the stack                                 |
 | `scripts/collect-local.sh`    | Run the collector natively (no containers) → `./data`     |
+| `scripts/release-build.sh`    | Build + package a downloadable binary for the host → `dist/` |
+| `scripts/release-publish.sh`  | Create/update a full GitHub release and upload `dist/*` (via `gh`) |
 
 Before opening a PR, please run:
 
@@ -2301,8 +2334,8 @@ or simply `./scripts/ci.sh` to run the same sequence CI does.
 ```
 crates/inkbird-core/       pure decoder library (no I/O, heavily unit-tested)
 crates/inkbird-collector/  BLE listener + NDJSON writer binary
-scripts/                   all build/test/run logic
-docs/                      architecture, bluetooth, data-format, and ADRs
+scripts/                   all build/test/run/release logic
+docs/                      architecture, bluetooth, data-format, releases, ADRs
 Containerfile*             OCI image recipes (vendor-neutral naming)
 compose.yaml               Compose Spec wiring the two services
 ```
@@ -2322,7 +2355,9 @@ compose.yaml               Compose Spec wiring the two services
   `cargo clippy -D warnings`.
 - **Tests.** Add tests for new logic; prefer pure, hardware-free tests. The
   existing tests inject time (`Instant`) and use `tempfile` directories rather
-  than touching real global state.
+  than touching real global state. Path-resolution logic (e.g. the collector's
+  `data_dir` module) takes the environment and executable path as arguments so
+  it can be tested without touching the real environment or filesystem.
 
 ## Dependencies and licensing
 
@@ -2343,6 +2378,18 @@ Please keep the tooling vendor-neutral: use **Podman**, name image recipes
 **`Containerfile`** (the vendor-neutral OCI name), and do not add a `build:`
 section to `compose.yaml` (images are built by `scripts/container-build.sh`).
 See [ADR 0004](docs/adr/0004-podman-and-containerfile-only.md).
+
+## Releases
+
+Releases are automated: every push to `main` runs
+`.github/workflows/release.yml`, which builds a self-contained
+`inkbird-collector` binary on a Linux/macOS/Windows matrix and publishes a
+**full** GitHub release (not a pre-release). All the real work is in
+`scripts/release-build.sh` (build + package) and `scripts/release-publish.sh`
+(create the release and upload), so you can reproduce a build locally with
+`./scripts/release-build.sh`. See
+[ADR 0011](docs/adr/0011-prebuilt-release-binaries.md) and
+[docs/releases.md](docs/releases.md).
 
 ## Documentation and decisions
 
@@ -2434,15 +2481,15 @@ pedantic = { level = "warn", priority = -1 }
   File name:             config.rs
   Relative path:         crates/inkbird-collector/src/config.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/config.rs
-  Size:                  5.2 KiB (5349 bytes)
-  Last modified:         2026-07-09 09:51:52.000000000 -0400
+  Size:                  6.6 KiB (6772 bytes)
+  Last modified:         2026-09-11 03:40:35.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185139
+  Inode:                 63570405
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               ee42578873dddb7a961a6559930cb7f882607381cb934ecb9e77b1c572e501e0
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               1f4e40a1046b9612a1f2d7bc0d4c316e2db76e9a5e97477dc5c1320406308df8
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 //! Configuration for the collector, sourced from CLI flags with environment
@@ -2457,8 +2504,14 @@ use clap::Parser;
 #[derive(Debug, Clone, Parser)]
 pub struct CollectArgs {
     /// Directory the readings are written under (`<dir>/readings/*.ndjson`).
-    #[arg(long, env = "INKBIRD_DATA_DIR", default_value = "./data")]
-    pub data_dir: PathBuf,
+    ///
+    /// When left unset (no `--data-dir` and no `INKBIRD_DATA_DIR`), the binary
+    /// picks a default: an XDG-style per-user data directory, then the
+    /// executable's own directory, and finally - if neither is writable - it
+    /// prints readings to standard output. The container sets this to `/data`.
+    /// See the `data_dir` module.
+    #[arg(long, env = "INKBIRD_DATA_DIR")]
+    pub data_dir: Option<PathBuf>,
 
     /// Only record advertisements from this Bluetooth address
     /// (e.g. `AA:BB:CC:DD:EE:FF`). Recommended - it is the most reliable way
@@ -2482,8 +2535,9 @@ pub struct CollectArgs {
 /// Resolved, validated configuration for a collection run.
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// Directory readings are written under.
-    pub data_dir: PathBuf,
+    /// Directory readings are written under, if set explicitly. `None` means
+    /// "resolve a default location" (see the `data_dir` module).
+    pub data_dir: Option<PathBuf>,
     /// Optional exact Bluetooth-address filter.
     pub address: Option<String>,
     /// Case-insensitive local-name substring used when no address is set.
@@ -2495,7 +2549,11 @@ pub struct Config {
 impl From<CollectArgs> for Config {
     fn from(args: CollectArgs) -> Self {
         Self {
-            data_dir: args.data_dir,
+            // An empty value means "not set", so the caller resolves a default.
+            // This matters because clap turns an empty `INKBIRD_DATA_DIR` env
+            // value into `Some("")`, which would otherwise become a data dir of
+            // `./readings` relative to the current directory.
+            data_dir: args.data_dir.filter(|p| !p.as_os_str().is_empty()),
             // Normalise the address once so comparisons are case-insensitive.
             //
             // An empty or whitespace-only value means "no address filter", so
@@ -2539,7 +2597,7 @@ mod tests {
 
     fn args() -> CollectArgs {
         CollectArgs {
-            data_dir: PathBuf::from("/data"),
+            data_dir: Some(PathBuf::from("/data")),
             address: Some("aa:bb:cc:dd:ee:ff".to_string()),
             name_match: "ITH-13-B".to_string(),
             min_interval_secs: 120,
@@ -2562,6 +2620,29 @@ mod tests {
     fn interval_is_seconds() {
         let cfg = Config::from(args());
         assert_eq!(cfg.min_interval, Duration::from_secs(120));
+    }
+
+    #[test]
+    fn explicit_data_dir_is_preserved() {
+        let cfg = Config::from(args());
+        assert_eq!(cfg.data_dir, Some(PathBuf::from("/data")));
+    }
+
+    #[test]
+    fn empty_data_dir_is_treated_as_unset() {
+        // clap turns an empty INKBIRD_DATA_DIR env value into Some("").
+        let mut a = args();
+        a.data_dir = Some(PathBuf::new());
+        let cfg = Config::from(a);
+        assert_eq!(cfg.data_dir, None);
+    }
+
+    #[test]
+    fn missing_data_dir_is_none() {
+        let mut a = args();
+        a.data_dir = None;
+        let cfg = Config::from(a);
+        assert_eq!(cfg.data_dir, None);
     }
 
     #[test]
@@ -2604,6 +2685,297 @@ mod tests {
 
 
 ################################################################################
+# FILE: crates/inkbird-collector/src/data_dir.rs
+################################################################################
+
+--- METADATA ---
+  File name:             data_dir.rs
+  Relative path:         crates/inkbird-collector/src/data_dir.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/data_dir.rs
+  Size:                  9.3 KiB (9542 bytes)
+  Last modified:         2026-09-11 03:37:17.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570407
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               3b16df6837a99bedb5042f50ef6a6488a8cdf52c2751ad95977470f8be1ee606
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+//! Resolving the *default* data directory for a standalone run of the binary.
+//!
+//! When neither `--data-dir` nor `INKBIRD_DATA_DIR` is set (the usual case when
+//! someone runs a downloaded binary directly), the collector has to decide where
+//! to write. It tries, in order:
+//!
+//! 1. an XDG-style per-user data directory (honouring `XDG_DATA_HOME`, and using
+//!    the platform default otherwise);
+//! 2. the directory that contains the running executable;
+//! 3. nothing writable was found, so the caller falls back to printing readings
+//!    to standard output.
+//!
+//! Only path *construction* lives here, and it is pure: the environment lookup
+//! and the executable's directory are passed in, so every branch is unit-tested
+//! without touching the real environment or filesystem. Deciding which candidate
+//! is actually writable is the caller's job (it probes each in order).
+
+use std::path::{Path, PathBuf};
+
+/// Directory name used under the per-user data location (for example
+/// `~/.local/share/myinkbird`).
+pub const APP_DIR: &str = "myinkbird";
+
+/// How a data-directory candidate was derived (used only for logging).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DataDirSource {
+    /// A per-user data directory: `XDG_DATA_HOME` or the platform default.
+    UserData,
+    /// The directory that contains the running executable.
+    ExecutableDir,
+}
+
+impl DataDirSource {
+    /// A short human-readable label for log messages.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::UserData => "per-user data directory",
+            Self::ExecutableDir => "executable directory",
+        }
+    }
+}
+
+/// A candidate default data directory and how it was derived.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DataDirCandidate {
+    /// Directory readings would be written under (`<path>/readings/...`).
+    pub path: PathBuf,
+    /// How this candidate was derived.
+    pub source: DataDirSource,
+}
+
+/// The platforms whose per-user data-directory conventions differ.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Platform {
+    /// Linux and other XDG-style Unixes.
+    Linux,
+    /// Apple macOS.
+    MacOs,
+    /// Microsoft Windows.
+    Windows,
+}
+
+impl Platform {
+    /// The platform this binary was compiled for.
+    ///
+    /// All three arms are referenced here, so none is ever reported as unused on
+    /// a given build; `cfg!` selects the value without removing the other arms.
+    pub const CURRENT: Self = if cfg!(target_os = "windows") {
+        Self::Windows
+    } else if cfg!(target_os = "macos") {
+        Self::MacOs
+    } else {
+        Self::Linux
+    };
+}
+
+/// Build the ordered list of candidate default data directories, most-preferred
+/// first, from an environment lookup and the executable's directory.
+///
+/// This does not touch the filesystem: the caller probes each candidate for
+/// writability in order and uses the first that works.
+#[must_use]
+pub fn candidate_data_dirs(
+    env: impl Fn(&str) -> Option<String>,
+    exe_dir: Option<&Path>,
+    platform: Platform,
+) -> Vec<DataDirCandidate> {
+    let mut candidates = Vec::new();
+
+    if let Some(base) = user_data_base(&env, platform) {
+        candidates.push(DataDirCandidate {
+            path: base.join(APP_DIR),
+            source: DataDirSource::UserData,
+        });
+    }
+
+    if let Some(dir) = exe_dir {
+        candidates.push(DataDirCandidate {
+            path: dir.to_path_buf(),
+            source: DataDirSource::ExecutableDir,
+        });
+    }
+
+    candidates
+}
+
+/// Candidates for the real process environment: uses the process's environment
+/// variables and the directory of the current executable.
+#[must_use]
+pub fn default_data_dir_candidates() -> Vec<DataDirCandidate> {
+    let exe_dir = std::env::current_exe()
+        .ok()
+        .and_then(|path| path.parent().map(Path::to_path_buf));
+    candidate_data_dirs(
+        |key| std::env::var(key).ok(),
+        exe_dir.as_deref(),
+        Platform::CURRENT,
+    )
+}
+
+/// The per-user data base directory, before the `myinkbird` subdirectory is
+/// appended. `None` when the environment variables it needs are absent.
+fn user_data_base(env: &impl Fn(&str) -> Option<String>, platform: Platform) -> Option<PathBuf> {
+    // An explicit, absolute `XDG_DATA_HOME` wins on every platform (some people
+    // set it on macOS and Windows too). The XDG spec says a relative value is
+    // invalid and must be ignored.
+    if let Some(dir) = non_empty(env("XDG_DATA_HOME")) {
+        let path = PathBuf::from(dir);
+        if path.is_absolute() {
+            return Some(path);
+        }
+    }
+
+    match platform {
+        Platform::Linux => {
+            non_empty(env("HOME")).map(|home| PathBuf::from(home).join(".local/share"))
+        }
+        Platform::MacOs => non_empty(env("HOME"))
+            .map(|home| PathBuf::from(home).join("Library/Application Support")),
+        Platform::Windows => non_empty(env("APPDATA"))
+            .or_else(|| non_empty(env("LOCALAPPDATA")))
+            .map(PathBuf::from),
+    }
+}
+
+/// `Some(value)` only when `value` is present and not just whitespace.
+fn non_empty(value: Option<String>) -> Option<String> {
+    value.filter(|s| !s.trim().is_empty())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Build an environment lookup from a list of key/value pairs.
+    fn env_of(pairs: &[(&str, &str)]) -> impl Fn(&str) -> Option<String> {
+        let owned: Vec<(String, String)> = pairs
+            .iter()
+            .map(|&(k, v)| (k.to_string(), v.to_string()))
+            .collect();
+        move |key: &str| {
+            owned
+                .iter()
+                .find(|(k, _)| k.as_str() == key)
+                .map(|(_, v)| v.clone())
+        }
+    }
+
+    #[test]
+    fn linux_uses_xdg_data_home_when_absolute() {
+        let env = env_of(&[("XDG_DATA_HOME", "/xdg/data"), ("HOME", "/home/me")]);
+        let candidates = candidate_data_dirs(env, None, Platform::Linux);
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].path, PathBuf::from("/xdg/data").join(APP_DIR));
+        assert_eq!(candidates[0].source, DataDirSource::UserData);
+    }
+
+    #[test]
+    fn linux_ignores_relative_xdg_data_home_and_uses_home() {
+        let env = env_of(&[("XDG_DATA_HOME", "relative/data"), ("HOME", "/home/me")]);
+        let candidates = candidate_data_dirs(env, None, Platform::Linux);
+        assert_eq!(
+            candidates[0].path,
+            PathBuf::from("/home/me").join(".local/share").join(APP_DIR)
+        );
+    }
+
+    #[test]
+    fn linux_falls_back_to_home_local_share() {
+        let env = env_of(&[("HOME", "/home/me")]);
+        let candidates = candidate_data_dirs(env, None, Platform::Linux);
+        assert_eq!(
+            candidates[0].path,
+            PathBuf::from("/home/me").join(".local/share").join(APP_DIR)
+        );
+        assert_eq!(candidates[0].source, DataDirSource::UserData);
+    }
+
+    #[test]
+    fn macos_uses_application_support() {
+        let env = env_of(&[("HOME", "/Users/me")]);
+        let candidates = candidate_data_dirs(env, None, Platform::MacOs);
+        assert_eq!(
+            candidates[0].path,
+            PathBuf::from("/Users/me")
+                .join("Library/Application Support")
+                .join(APP_DIR)
+        );
+    }
+
+    #[test]
+    fn windows_prefers_appdata_then_localappdata() {
+        let env = env_of(&[
+            ("APPDATA", "C:\\Users\\me\\AppData\\Roaming"),
+            ("LOCALAPPDATA", "C:\\Users\\me\\AppData\\Local"),
+        ]);
+        let candidates = candidate_data_dirs(env, None, Platform::Windows);
+        assert_eq!(
+            candidates[0].path,
+            PathBuf::from("C:\\Users\\me\\AppData\\Roaming").join(APP_DIR)
+        );
+
+        let env = env_of(&[("LOCALAPPDATA", "C:\\Users\\me\\AppData\\Local")]);
+        let candidates = candidate_data_dirs(env, None, Platform::Windows);
+        assert_eq!(
+            candidates[0].path,
+            PathBuf::from("C:\\Users\\me\\AppData\\Local").join(APP_DIR)
+        );
+    }
+
+    #[test]
+    fn executable_dir_is_second_choice() {
+        let env = env_of(&[("HOME", "/home/me")]);
+        let exe = PathBuf::from("/opt/inkbird");
+        let candidates = candidate_data_dirs(env, Some(exe.as_path()), Platform::Linux);
+        assert_eq!(candidates.len(), 2);
+        assert_eq!(candidates[0].source, DataDirSource::UserData);
+        assert_eq!(candidates[1].source, DataDirSource::ExecutableDir);
+        assert_eq!(candidates[1].path, exe);
+    }
+
+    #[test]
+    fn executable_dir_is_only_choice_without_home() {
+        let exe = PathBuf::from("/opt/inkbird");
+        let candidates = candidate_data_dirs(env_of(&[]), Some(exe.as_path()), Platform::Linux);
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].source, DataDirSource::ExecutableDir);
+        assert_eq!(candidates[0].path, exe);
+    }
+
+    #[test]
+    fn empty_environment_yields_no_candidates() {
+        let candidates = candidate_data_dirs(env_of(&[]), None, Platform::Linux);
+        assert!(candidates.is_empty());
+    }
+
+    #[test]
+    fn whitespace_home_is_ignored() {
+        let env = env_of(&[("HOME", "   ")]);
+        let candidates = candidate_data_dirs(env, None, Platform::Linux);
+        assert!(candidates.is_empty());
+    }
+
+    #[test]
+    fn label_is_stable() {
+        assert_eq!(DataDirSource::UserData.label(), "per-user data directory");
+        assert_eq!(DataDirSource::ExecutableDir.label(), "executable directory");
+    }
+}
+
+
+################################################################################
 # FILE: crates/inkbird-collector/src/main.rs
 ################################################################################
 
@@ -2611,15 +2983,15 @@ mod tests {
   File name:             main.rs
   Relative path:         crates/inkbird-collector/src/main.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/main.rs
-  Size:                  2.6 KiB (2693 bytes)
-  Last modified:         2026-07-09 04:53:16.588008128 -0400
+  Size:                  4.4 KiB (4595 bytes)
+  Last modified:         2026-09-11 03:41:15.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20133317
+  Inode:                 63570403
   Hard links:            1
   MIME type:             text/x-c
-  SHA-256:               4f2077e278861c383e5b37bad3f125769b65b7e8ccf57062045cf4eaffe0d430
-  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
+  SHA-256:               699ac026bc8b7603adac62768366028bd2de1a76229cc086f41c28275a78d142
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 //! `inkbird-collector` entry point.
@@ -2631,20 +3003,25 @@ mod tests {
 //!     you find your sensor's Bluetooth address and confirm its byte layout.
 
 mod config;
+mod data_dir;
 mod ndjson_sink;
 mod record;
 mod scanner;
 mod shutdown;
 mod sink;
+mod stdout_sink;
 mod throttle;
 
 use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
 use crate::config::{CollectArgs, Config};
+use crate::data_dir::{DataDirCandidate, default_data_dir_candidates};
 use crate::ndjson_sink::NdjsonSink;
+use crate::sink::ReadingSink;
+use crate::stdout_sink::StdoutSink;
 
 /// Passive BLE collector for the INKBIRD ITH-13-B thermo-hygrometer.
 #[derive(Debug, Parser)]
@@ -2689,13 +3066,59 @@ async fn main() -> Result<()> {
     }
 }
 
-/// Wire up the NDJSON sink and run the collection loop.
+/// Wire up a sink and run the collection loop.
 async fn run_collect(args: CollectArgs) -> Result<()> {
     let config = Config::from(args);
-    info!(data_dir = %config.data_dir.display(), "starting collector");
+    info!("starting collector (listen-only)");
     let central = scanner::get_central().await?;
-    let mut sink = NdjsonSink::new(&config.data_dir);
-    scanner::run_collect(&central, &config, &mut sink).await
+    let mut sink = open_sink(&config);
+    scanner::run_collect(&central, &config, &mut *sink).await
+}
+
+/// Choose where readings go, following the resolution order in the `data_dir`
+/// module.
+///
+/// When the data directory was given explicitly (`--data-dir` /
+/// `INKBIRD_DATA_DIR`, as the container sets), honour it. Otherwise try an
+/// XDG-style per-user directory, then the executable's own directory, and
+/// finally fall back to printing readings to standard output so they are at
+/// least visible rather than silently lost.
+fn open_sink(config: &Config) -> Box<dyn ReadingSink> {
+    if let Some(dir) = &config.data_dir {
+        // Explicit choice: use it as-is. NdjsonSink creates the directory on the
+        // first write and surfaces any error there.
+        info!(
+            data_dir = %dir.display(),
+            "writing readings to the configured data directory"
+        );
+        return Box::new(NdjsonSink::new(dir));
+    }
+
+    for DataDirCandidate { path, source } in default_data_dir_candidates() {
+        match NdjsonSink::create_in(&path) {
+            Ok(sink) => {
+                info!(
+                    source = source.label(),
+                    "writing readings to {}",
+                    path.join("readings").display()
+                );
+                return Box::new(sink);
+            }
+            Err(error) => warn!(
+                candidate = %path.display(),
+                source = source.label(),
+                %error,
+                "cannot use this data directory; trying the next option"
+            ),
+        }
+    }
+
+    warn!(
+        "no writable data directory found (tried an XDG-style per-user directory \
+         and the executable's own directory); printing readings to standard \
+         output instead. Set INKBIRD_DATA_DIR to choose a writable location."
+    );
+    Box::new(StdoutSink::new())
 }
 
 /// Initialise tracing/logging. Honours `RUST_LOG`; defaults to `info`.
@@ -2716,18 +3139,18 @@ fn init_tracing() {
   File name:             ndjson_sink.rs
   Relative path:         crates/inkbird-collector/src/ndjson_sink.rs
   Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/ndjson_sink.rs
-  Size:                  4.0 KiB (4192 bytes)
-  Last modified:         2026-07-09 04:53:24.471987105 -0400
+  Size:                  5.1 KiB (5316 bytes)
+  Last modified:         2026-09-11 03:39:52.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20133332
+  Inode:                 63570404
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               a1cd6f13017e863f8adb6c98f6e9f10b1b042b769dc270008ebea80017d22398
-  Last git commit:       b70ded3 2026-07-09 04:54:29 -0400 add claude response
+  SHA-256:               95e8969dce81da3b860f60045257fe57965610e77d5e9712aa5daef0b57e5a26
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
-//! An [`ReadingSink`] that appends readings to per-day NDJSON files.
+//! A [`ReadingSink`] that appends readings to per-day NDJSON files.
 //!
 //! Files live under `<data_dir>/readings/<YYYY-MM-DD>.ndjson`, one JSON object
 //! per line. NDJSON is append-friendly, human-readable, and produces clean
@@ -2756,6 +3179,20 @@ impl NdjsonSink {
         Self {
             readings_dir: data_dir.as_ref().join("readings"),
         }
+    }
+
+    /// Create a sink rooted at `data_dir`, eagerly creating the `readings/`
+    /// directory so a permission or path problem surfaces now rather than on the
+    /// first write. Used to probe whether a candidate data directory is usable.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the `readings/` directory cannot be created.
+    pub fn create_in(data_dir: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let sink = Self::new(data_dir);
+        fs::create_dir_all(&sink.readings_dir)
+            .with_context(|| format!("creating readings dir {}", sink.readings_dir.display()))?;
+        Ok(sink)
     }
 
     /// Absolute path of the file a reading with this date key would land in.
@@ -2848,6 +3285,18 @@ mod tests {
         let path = dir.path().join("readings/2026-07-08.ndjson");
         let contents = fs::read_to_string(&path).unwrap();
         assert_eq!(contents.lines().count(), 2);
+    }
+
+    #[test]
+    fn create_in_makes_readings_dir_up_front() {
+        let dir = tempdir().unwrap();
+        let sink = NdjsonSink::create_in(dir.path()).unwrap();
+        // The readings directory exists even before any reading is recorded.
+        assert!(dir.path().join("readings").is_dir());
+        // And it is usable.
+        let mut sink = sink;
+        sink.record(&reading_on("2026-07-08", 20.0)).unwrap();
+        assert!(dir.path().join("readings/2026-07-08.ndjson").exists());
     }
 }
 
@@ -3547,6 +3996,89 @@ mod tests {
         sink.record(&rec()).unwrap();
         assert_eq!(sink.len(), 2);
         assert_eq!(sink.readings[0].address, "AA:BB:CC:DD:EE:FF");
+    }
+}
+
+
+################################################################################
+# FILE: crates/inkbird-collector/src/stdout_sink.rs
+################################################################################
+
+--- METADATA ---
+  File name:             stdout_sink.rs
+  Relative path:         crates/inkbird-collector/src/stdout_sink.rs
+  Absolute path:         /home/kushal/src/rust/myinkbird/crates/inkbird-collector/src/stdout_sink.rs
+  Size:                  1.9 KiB (1968 bytes)
+  Last modified:         2026-09-11 03:39:19.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570406
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               0fc5aa683e3ecaaaeebe7d7443bc1816ed93586d90c7bff83fecff2ba1d67b18
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+//! A [`ReadingSink`](crate::sink::ReadingSink) of last resort: print each
+//! reading to standard output.
+//!
+//! This is used only when no data directory could be created (neither an
+//! XDG-style per-user directory nor the executable's own directory was
+//! writable), so readings stay visible instead of being silently lost. It emits
+//! one JSON object per line - the same shape the files carry - so the output can
+//! still be piped into `jq` or redirected to a file by the user.
+
+use std::io::{self, Write};
+
+use anyhow::Context;
+
+use crate::record::StoredReading;
+use crate::sink::ReadingSink;
+
+/// Writes each reading as one NDJSON line to standard output.
+#[derive(Debug, Default)]
+pub struct StdoutSink;
+
+impl StdoutSink {
+    /// Create a stdout sink.
+    #[must_use]
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl ReadingSink for StdoutSink {
+    fn record(&mut self, reading: &StoredReading) -> anyhow::Result<()> {
+        let line = serde_json::to_string(reading).context("serializing reading")?;
+        let mut out = io::stdout().lock();
+        writeln!(out, "{line}").context("writing reading to stdout")?;
+        out.flush().context("flushing stdout")?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use inkbird_core::SensorReading;
+
+    #[test]
+    fn record_serializes_without_error() {
+        // The sink writes to the process stdout; here we only assert that
+        // serialization and the write path succeed for a representative record.
+        let reading = StoredReading::new(
+            "2026-07-08T21:03:44Z".to_string(),
+            "AA:BB:CC:DD:EE:FF".to_string(),
+            Some("ITH-13-B".to_string()),
+            Some(-60),
+            &SensorReading {
+                temperature_c: Some(21.0),
+                humidity_pct: Some(40.0),
+                battery_pct: Some(90),
+            },
+        );
+        let mut sink = StdoutSink::new();
+        sink.record(&reading).unwrap();
     }
 }
 
@@ -5043,6 +5575,101 @@ This was the first-run failure that made the project look broken.
 
 
 ################################################################################
+# FILE: docs/adr/0011-prebuilt-release-binaries.md
+################################################################################
+
+--- METADATA ---
+  File name:             0011-prebuilt-release-binaries.md
+  Relative path:         docs/adr/0011-prebuilt-release-binaries.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/0011-prebuilt-release-binaries.md
+  Size:                  4.0 KiB (4109 bytes)
+  Last modified:         2026-09-11 03:45:32.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570414
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               e855ace0c7c8c4e2801c55301d13c0d5a8a0909d005594235bc886bbacbe113c
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+# 0011. Ship prebuilt cross-platform binaries via GitHub Releases
+
+- Status: Accepted
+- Date: 2026-09-11
+
+## Context
+
+Until now the only ways to run the collector were to build it from source or to
+build and run the container stack. Both need a toolchain (or Podman) and some
+setup. For someone who just wants to point the tool at their sensor on a laptop,
+a single downloadable executable is far lower friction.
+
+A prebuilt binary also has to answer a question the container never did: **where
+does it write its readings** when nobody has bind-mounted `/data` or set
+`INKBIRD_DATA_DIR`? It should pick a sensible, conventional location on each OS,
+and degrade gracefully if that location is not writable.
+
+## Decision
+
+- **Publish prebuilt `inkbird-collector` binaries for Linux, macOS, and
+  Windows** on GitHub Releases.
+- **Build natively on a CI matrix** (`ubuntu-latest`, `macos-latest`,
+  `windows-latest`) rather than cross-compiling. `btleplug` uses a different
+  Bluetooth backend per OS (BlueZ/D-Bus on Linux, CoreBluetooth on macOS, WinRT
+  on Windows), so a native build per platform is far simpler and more reliable
+  than cross-compiling those backends.
+- **Keep all real logic in bash scripts** (consistent with
+  [ADR 0008](0008-slim-ci-delegating-to-bash.md)):
+  - `scripts/release-build.sh` builds the release binary for the host, then
+    packages it as a `.tar.gz` with a `.sha256` sidecar (and the `LICENSE`) into
+    `dist/`. The same script runs locally and in each matrix leg.
+  - `scripts/release-publish.sh` creates/updates the release and uploads
+    `dist/*` via the GitHub CLI (`gh`).
+  - `.github/workflows/release.yml` only checks out, caches, and calls those
+    scripts.
+- **A full release on every push to `main`.** Each push produces one GitHub
+  release marked as the latest **full** release (not a pre-release). The tag is
+  derived from the workspace version plus the CI run number, e.g.
+  `v0.1.0-r42`, so every push yields a unique release.
+- **Default data-directory resolution for a standalone run** (in the collector's
+  `data_dir` module), used only when neither `--data-dir` nor `INKBIRD_DATA_DIR`
+  is set:
+  1. an XDG-style per-user data directory - `XDG_DATA_HOME/myinkbird`, else the
+     platform default (`~/.local/share/myinkbird` on Linux,
+     `~/Library/Application Support/myinkbird` on macOS,
+     `%APPDATA%\myinkbird` on Windows);
+  2. otherwise the directory containing the executable;
+  3. otherwise print readings to standard output so they are still visible.
+  The container is unaffected: it sets `INKBIRD_DATA_DIR=/data` explicitly, and
+  an empty value is treated as "unset".
+
+## Consequences
+
+- **The binary is self-contained but not fully static.** All Rust crates are
+  linked in. On Linux it still dynamically links the system C library and
+  `libdbus` - both present on any desktop that has Bluetooth - so it is not a
+  from-scratch static binary. macOS and Windows need no extra runtime libraries.
+- **The battery guarantee is unchanged.** This is the same listen-only code
+  (see [ADR 0003](0003-listen-only-never-connect.md)); packaging it differently
+  changes nothing about how it talks to the sensor.
+- **The data location differs from the container.** A standalone run writes to a
+  per-user directory (or falls back), not `/data`. This is documented in
+  [docs/releases.md](../releases.md) and
+  [docs/data-format.md](../data-format.md).
+- **Many releases accumulate.** Releasing on every push (in the spirit of
+  [ADR 0009](0009-always-latest-dependencies.md)'s always-current stance) trades
+  a tidy release list for always having downloadable binaries for the latest
+  `main`. Old releases can be pruned if desired.
+- **Licensing.** The binaries are covered by AGPL-3.0-or-later like the source;
+  the archive ships the `LICENSE` text, and the corresponding source is this
+  repository at the released commit.
+- **No cross-compilation.** Building only for the three runner platforms means
+  no binaries for other targets (e.g. ARM Linux) yet; a contributor who needs
+  one can run `scripts/release-build.sh` on that platform.
+
+
+################################################################################
 # FILE: docs/adr/README.md
 ################################################################################
 
@@ -5050,15 +5677,15 @@ This was the first-run failure that made the project look broken.
   File name:             README.md
   Relative path:         docs/adr/README.md
   Absolute path:         /home/kushal/src/rust/myinkbird/docs/adr/README.md
-  Size:                  2.4 KiB (2497 bytes)
-  Last modified:         2026-07-09 09:53:40.000000000 -0400
+  Size:                  2.5 KiB (2623 bytes)
+  Last modified:         2026-09-11 03:46:09.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185155
+  Inode:                 63570413
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               35931c0f855995b35fd3de77891414327fc673ac4dd4131d92251784f6c99e53
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               8a985f0e889077452c18432246f390ac915074d5e5efa138e4533845f898f828
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Architecture Decision Records
@@ -5098,6 +5725,7 @@ original ADR write-up and the MADR template. For background see
 | [0008](0008-slim-ci-delegating-to-bash.md)                 | Slim CI that delegates to bash scripts            | Accepted |
 | [0009](0009-always-latest-dependencies.md)                 | Track the latest toolchain and dependencies       | Accepted |
 | [0010](0010-build-images-rootful.md)                       | Build the container images rootful                | Accepted |
+| [0011](0011-prebuilt-release-binaries.md)                  | Ship prebuilt cross-platform binaries via Releases| Accepted |
 
 
 ################################################################################
@@ -5108,15 +5736,15 @@ original ADR write-up and the MADR template. For background see
   File name:             architecture.md
   Relative path:         docs/architecture.md
   Absolute path:         /home/kushal/src/rust/myinkbird/docs/architecture.md
-  Size:                  8.1 KiB (8348 bytes)
-  Last modified:         2026-07-09 09:54:12.000000000 -0400
+  Size:                  9.7 KiB (9944 bytes)
+  Last modified:         2026-09-11 03:50:16.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185153
+  Inode:                 63570411
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               6303bf510097732b4f8fc9a526850ed2a1ae8a07e4cad3d05d9dea00e3419c70
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               ef71f3bb9efdc4fa1c1c241181208a6252b2f6b05d0274b8e9c25202fc56e657
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Architecture
@@ -5161,7 +5789,12 @@ The runnable program. Responsibilities are split across small modules:
   `Config` (data directory, optional address filter, name-match substring,
   throttle interval). An empty address filter (e.g. an unset `INKBIRD_ADDRESS`
   that compose passes as `""`) is normalised to "no filter", so the collector
-  falls back to name matching instead of matching nothing.
+  falls back to name matching instead of matching nothing. An empty
+  `INKBIRD_DATA_DIR` is likewise treated as "unset".
+- `data_dir` - resolves the *default* data directory when none was given (no
+  `--data-dir` / `INKBIRD_DATA_DIR`): an XDG-style per-user directory, then the
+  directory containing the executable, then a stdout fallback. It is pure (the
+  environment and executable path are passed in) and unit-tested.
 - `throttle` - suppresses duplicate readings from an unchanged sensor while
   always recording any real change. Pure and time-injected, so it is fully
   unit-testable.
@@ -5169,6 +5802,8 @@ The runnable program. Responsibilities are split across small modules:
   on the abstraction, tests substitute an in-memory `VecSink`.
 - `ndjson_sink` - the production `ReadingSink`; appends one JSON object per line
   to per-day files.
+- `stdout_sink` - a `ReadingSink` that prints NDJSON to standard output; the
+  last-resort fallback when no data directory is writable.
 - `record` - the on-disk record shape (`StoredReading`) and its serialization.
 - `shutdown` - resolves on Ctrl-C or SIGTERM so the scan stops cleanly when
   `podman stop` is issued.
@@ -5200,6 +5835,22 @@ is bind-mounted at `/data` in both containers. The collector writes NDJSON into
 it; the committer commits it. Because it is a real host directory (not an
 opaque named volume), you can browse the NDJSON files and their git history
 directly. This is the only thing the two containers share.
+
+### Where readings are written (container vs standalone)
+
+The scanner is agnostic about storage - it only sees a `ReadingSink`. `main`
+picks the concrete sink:
+
+- **In the container**, `INKBIRD_DATA_DIR=/data` is set explicitly, so `main`
+  uses an `NdjsonSink` rooted there (the shared host bind mount above).
+- **As a standalone binary** (a [prebuilt release](releases.md) run directly),
+  usually nothing sets a data directory. `main` then walks the `data_dir`
+  candidates in order, probing each by trying to create its `readings/`
+  subdirectory, and uses the first that works: an XDG-style per-user directory,
+  else the executable's own directory. If neither is writable it falls back to
+  the `stdout_sink`, so readings are still visible. A standalone binary writes
+  the files but does not run the committer; version-controlling them is left to
+  the user (or to the container stack).
 
 ## Data flow
 
@@ -5258,7 +5909,8 @@ Step by step:
    changed value, or enough time elapsed).
 7. `NdjsonSink` appends the record as one line to
    `/data/readings/<YYYY-MM-DD>.ndjson` - which is `./data/readings/...` on the
-   host.
+   host. (A standalone binary writes to its resolved data directory instead;
+   see "Where readings are written" above.)
 8. On its own schedule, the committer stages and commits new lines to the local
    git repository in `/data`. Nothing is ever pushed.
 
@@ -5266,8 +5918,9 @@ Step by step:
 
 - `inkbird-collector` depends on `inkbird-core`, never the reverse.
 - Within the collector, `scanner` depends on the `ReadingSink` *trait*, not on
-  `NdjsonSink` directly. The concrete sink is injected in `main`. This keeps the
-  hardware-facing code and the storage code independently testable.
+  `NdjsonSink` directly. `main` selects the concrete sink (`NdjsonSink`, or the
+  `StdoutSink` fallback) based on configuration and directory writability. This
+  keeps the hardware-facing code and the storage code independently testable.
 - The two containers communicate only through files in the shared host
   directory; there is no network link between them.
 
@@ -5502,15 +6155,15 @@ Install either the `podman compose` plugin or `podman-compose`. The scripts try
   File name:             data-format.md
   Relative path:         docs/data-format.md
   Absolute path:         /home/kushal/src/rust/myinkbird/docs/data-format.md
-  Size:                  6.5 KiB (6668 bytes)
-  Last modified:         2026-07-09 09:54:40.000000000 -0400
+  Size:                  7.2 KiB (7394 bytes)
+  Last modified:         2026-09-11 03:51:54.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185152
+  Inode:                 63570410
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               3caad96ac5338ba61c196d0c742004886ef5cfdf5053ac16710da98f96dd5fb8
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               f1807535e0e76edca5eb205e21e6c9939059bc6014cf057d2c9057f63a3b20a5
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Data format
@@ -5541,6 +6194,17 @@ a new file starts at 00:00 UTC.
 If you run the collector directly during development (not in a container - e.g.
 via `./scripts/collect-local.sh`), the data directory defaults to `./data`
 relative to the repo root unless you set `INKBIRD_DATA_DIR`.
+
+If instead you run a **standalone [prebuilt binary](releases.md)** and set
+neither `--data-dir` nor `INKBIRD_DATA_DIR`, the binary resolves a per-user
+location: an XDG-style data directory (`~/.local/share/myinkbird` on Linux,
+`~/Library/Application Support/myinkbird` on macOS, `%APPDATA%\myinkbird` on
+Windows), falling back to the executable's own directory, and finally to
+printing readings on standard output if neither is writable. The `readings/`
+layout below is identical wherever the directory ends up; only the parent
+directory differs. A standalone binary writes the files but does not run the
+committer, so version-controlling them is up to you. See
+[docs/releases.md](releases.md) for the full resolution order.
 
 > The collector runs as root (rootful, for BlueZ), so the files under `./data`
 > are **root-owned** (world-readable). To run `git` against the data repo as
@@ -5659,6 +6323,147 @@ Because commits only happen when there is something new, the log doubles as a
 coarse record of when the sensor was active. Nothing here is ever pushed to a
 remote (see [ADR 0006](adr/0006-local-git-ndjson-storage.md)); if you want the
 data elsewhere, copy the files or add a remote yourself, deliberately.
+
+
+################################################################################
+# FILE: docs/releases.md
+################################################################################
+
+--- METADATA ---
+  File name:             releases.md
+  Relative path:         docs/releases.md
+  Absolute path:         /home/kushal/src/rust/myinkbird/docs/releases.md
+  Size:                  4.2 KiB (4379 bytes)
+  Last modified:         2026-09-11 03:45:57.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570409
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               88f4a9056363d567ba25335465761640f6eb10f82264f0fe46a1c52bd360e41e
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+# Prebuilt binaries and releases
+
+Every push to `main` publishes a **full** GitHub release with a self-contained
+`inkbird-collector` binary for Linux, macOS, and Windows. This is the
+no-toolchain, no-container way to run the collector. For the *why*, see
+[ADR 0011](adr/0011-prebuilt-release-binaries.md).
+
+> These are the same listen-only program as the container build - they never
+> connect to the sensor, so the battery guarantee still holds (see
+> [ADR 0003](adr/0003-listen-only-never-connect.md)).
+
+## Download
+
+Grab the archive for your platform from the
+[latest release](https://github.com/kusl/myinkbird/releases/latest). Assets are
+named `inkbird-collector-<version>-<target-triple>.tar.gz`, for example:
+
+- Linux (x86-64): `...-x86_64-unknown-linux-gnu.tar.gz`
+- macOS (Apple Silicon): `...-aarch64-apple-darwin.tar.gz`
+- Windows (x86-64): `...-x86_64-pc-windows-msvc.tar.gz`
+
+Each archive has a matching `.sha256` file and contains the binary, this
+project's `LICENSE`, and the `README.md`.
+
+## Verify the download
+
+```bash
+# From the directory holding the archive and its .sha256:
+sha256sum -c inkbird-collector-<version>-<triple>.tar.gz.sha256   # Linux
+shasum -a 256 -c inkbird-collector-<version>-<triple>.tar.gz.sha256   # macOS
+```
+
+Then unpack:
+
+```bash
+tar -xzf inkbird-collector-<version>-<triple>.tar.gz
+```
+
+On Windows, use the built-in `tar` (available in modern Windows and Git Bash),
+or any archiver that understands `.tar.gz`.
+
+## Runtime requirements
+
+The binary is self-contained (all Rust dependencies are linked in), with one
+per-platform caveat:
+
+- **Linux** needs a running `bluetoothd` and the system `libdbus` (present on
+  any desktop with Bluetooth). It talks to BlueZ over D-Bus, and BlueZ's default
+  policy means you will typically need to run it with `sudo` (see
+  [docs/bluetooth.md](bluetooth.md)).
+- **macOS** uses CoreBluetooth; grant the terminal Bluetooth permission when
+  prompted.
+- **Windows** uses WinRT; no extra runtime libraries are required.
+
+## Run it
+
+Find your sensor first (scan and print nearby devices):
+
+```bash
+./inkbird-collector discover --seconds 30
+```
+
+Then collect (the default subcommand). Passing your sensor's address is the most
+reliable option:
+
+```bash
+./inkbird-collector collect --address AA:BB:CC:DD:EE:FF
+```
+
+Everything is also configurable by environment variable (the same names the
+container uses); see [Configuration](../README.md#configuration).
+
+## Where a standalone binary stores readings
+
+Unlike the container (which writes to `/data`), a standalone binary that is
+**not** told where to write - no `--data-dir` flag and no `INKBIRD_DATA_DIR` -
+resolves a default location, in this order:
+
+1. an **XDG-style per-user data directory**:
+   - honours `XDG_DATA_HOME` if set (used as `$XDG_DATA_HOME/myinkbird`),
+   - otherwise the platform default:
+     - Linux: `~/.local/share/myinkbird`
+     - macOS: `~/Library/Application Support/myinkbird`
+     - Windows: `%APPDATA%\myinkbird`
+2. otherwise, the **directory containing the executable** (i.e. next to the
+   binary you unpacked);
+3. otherwise, if neither is writable, it **prints readings to standard output**
+   so they are still visible (you can redirect them to a file yourself).
+
+Readings land under `<that directory>/readings/<YYYY-MM-DD>.ndjson`, the same
+per-day NDJSON layout described in [docs/data-format.md](data-format.md). The
+startup log prints the directory it chose. To pin a location explicitly:
+
+```bash
+./inkbird-collector collect --data-dir /path/you/choose
+#   or
+INKBIRD_DATA_DIR=/path/you/choose ./inkbird-collector collect
+```
+
+Note that a standalone binary only *writes* the NDJSON files - it does not run
+the git committer. If you want the readings kept under version control, either
+run `git init`/`git commit` in the data directory yourself, or use the container
+stack, which includes the committer sidecar (see
+[docs/architecture.md](architecture.md)).
+
+## Building a release locally
+
+The release build is just a script, so you can produce your platform's artifact
+without CI:
+
+```bash
+./scripts/release-build.sh          # writes dist/inkbird-collector-<ver>-<triple>.tar.gz(+ .sha256)
+```
+
+Publishing is a second script (used by CI, or locally if you have authenticated
+the GitHub CLI with `gh auth login`):
+
+```bash
+./scripts/release-publish.sh        # creates/updates the release and uploads dist/*
+```
 
 
 ################################################################################
@@ -6182,6 +6987,101 @@ jobs:
 
 
 ################################################################################
+# FILE: .github/workflows/release.yml
+################################################################################
+
+--- METADATA ---
+  File name:             release.yml
+  Relative path:         .github/workflows/release.yml
+  Absolute path:         /home/kushal/src/rust/myinkbird/.github/workflows/release.yml
+  Size:                  2.2 KiB (2334 bytes)
+  Last modified:         2026-09-11 03:42:41.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570395
+  Hard links:            1
+  MIME type:             text/plain
+  SHA-256:               d9a0a21d4316343bd6a46df73e0d1dfb49518f2d8e35832faccef2590b76ecfa
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+# Release workflow. Like the CI workflow (see docs/adr/0008), this stays slim:
+# it checks out, restores a cache, and calls bash scripts that hold all the real
+# logic, so the exact same build runs locally (./scripts/release-build.sh).
+#
+# A native build matrix (Linux/macOS/Windows) produces one self-contained
+# inkbird-collector binary per platform - built natively because btleplug uses a
+# different Bluetooth backend on each OS. A final job publishes a single FULL
+# GitHub release (not a pre-release) per push to main. See docs/adr/0011.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# The build jobs only read the repo; the publish job needs write to create the
+# release and its tag.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  # Do not cancel an in-progress publish.
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: release-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: release-${{ runner.os }}-
+      # Rust is preinstalled on GitHub runners; scripts/lib.sh (ensure_rust)
+      # uses it and, if ever absent, installs it - so no toolchain action here,
+      # matching the slim CI workflow.
+      - name: Build and package
+        shell: bash
+        run: bash scripts/release-build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: publish full release
+    needs: build
+    runs-on: ubuntu-latest
+    # Only this job writes (creates the release + tag).
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: bash scripts/release-publish.sh
+
+
+################################################################################
 # FILE: .gitignore
 ################################################################################
 
@@ -6189,20 +7089,23 @@ jobs:
   File name:             .gitignore
   Relative path:         .gitignore
   Absolute path:         /home/kushal/src/rust/myinkbird/.gitignore
-  Size:                  234 B (234 bytes)
-  Last modified:         2026-07-08 21:54:07.600712806 -0400
+  Size:                  298 B (298 bytes)
+  Last modified:         2026-09-11 03:45:01.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20099693
+  Inode:                 63570396
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               951fecc2c8f97d06c2d77aac822c86f56c8112e2e9706e079389e3dade68f9c5
-  Last git commit:       9503d5d 2026-07-08 21:54:23 -0400 add dumps to the repository
+  SHA-256:               88b0d4cdba918dd94c9a5a803a96f7cda6ae05fa7dca3431038ef4fda2151efa
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # Rust build output
 /target
 **/*.rs.bk
+
+# Release artifacts produced by scripts/release-build.sh
+/dist
 
 # Cargo lock is committed for the binary workspace (kept, not ignored).
 
@@ -6480,15 +7383,15 @@ You should also get your employer (if you work as a programmer) or school, if an
   File name:             README.md
   Relative path:         README.md
   Absolute path:         /home/kushal/src/rust/myinkbird/README.md
-  Size:                  13.5 KiB (13911 bytes)
-  Last modified:         2026-07-09 08:06:50.642441240 -0400
+  Size:                  15.7 KiB (16178 bytes)
+  Last modified:         2026-09-11 03:48:36.000000000 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185135
+  Inode:                 63570399
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               2a7328ad4a81ce4507127f750596b2f615923e8b5cab96dc2012d3ad255ad835
-  Last git commit:       39d2264 2026-07-09 08:06:59 -0400 clean up
+  SHA-256:               73f834c4958c738025ec64c16adf19a9db4d8ba9743148dc47a109c5327af3c3
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 # myinkbird
@@ -6498,8 +7401,9 @@ readings from an **INKBIRD ITH-13-B** Bluetooth thermo-hygrometer by *listening*
 to the advertisements it already broadcasts — never connecting to it — and
 stores those readings as NDJSON in a **local git repository** on your machine.
 
-Everything runs in containers via **Podman**. Nothing is installed on the host
-except the container engine (or, for the quick native path, the Rust toolchain).
+You can run it from a **prebuilt binary** (nothing to install), as a
+containerised stack via **Podman**, or straight from source with the Rust
+toolchain.
 
 > **Primary design goal: add zero extra battery drain to the sensor.** The
 > ITH-13-B runs on two AAA cells and broadcasts its readings over Bluetooth Low
@@ -6511,6 +7415,7 @@ except the container engine (or, for the quick native path, the Rust toolchain).
 - [How it's built with AI assistance (please read)](#how-its-built-with-ai-assistance-please-read)
 - [Hardware](#hardware)
 - [How it works](#how-it-works)
+- [Prebuilt binaries](#prebuilt-binaries)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [The data](#the-data)
@@ -6552,7 +7457,8 @@ build on this project, please carry a similar disclosure forward.
   Low Energy.
 - **Host:** developed against Fedora on an Acer Swift Go 14 (AMD Ryzen 8845HS),
   but nothing is machine-specific: any Linux host with a Bluetooth adapter,
-  a running `bluetoothd`, and Podman should work.
+  a running `bluetoothd`, and Podman should work. The prebuilt binaries also run
+  on macOS and Windows.
 
 The collector identifies the sensor by its Bluetooth address (recommended) or by
 a substring of its advertised name (`ith-13-b` by default).
@@ -6602,6 +7508,34 @@ Two crates and two containers:
 
 See [docs/architecture.md](docs/architecture.md) for the full picture.
 
+## Prebuilt binaries
+
+Every push to `main` publishes a **full** GitHub release with a self-contained
+`inkbird-collector` binary for **Linux, macOS, and Windows** — the
+no-toolchain, no-container way to run the collector. Download the archive for
+your platform from the
+[latest release](https://github.com/kusl/myinkbird/releases/latest), verify its
+checksum, unpack it, and run:
+
+```bash
+./inkbird-collector discover --seconds 30            # find your sensor
+./inkbird-collector collect --address AA:BB:CC:DD:EE:FF
+```
+
+These binaries are the same listen-only program as the container build, so the
+battery guarantee is unchanged. On Linux they still need a running `bluetoothd`
+and `libdbus`, and usually `sudo` (see [docs/bluetooth.md](docs/bluetooth.md));
+macOS uses CoreBluetooth and Windows uses WinRT, needing no extra libraries.
+
+**Where a standalone binary stores readings.** With no `--data-dir` /
+`INKBIRD_DATA_DIR` set, it writes to an XDG-style per-user directory
+(`~/.local/share/myinkbird` on Linux, `~/Library/Application Support/myinkbird`
+on macOS, `%APPDATA%\myinkbird` on Windows), falling back to the executable's
+own directory, and finally to printing readings on screen if neither is
+writable. A standalone binary writes the NDJSON files but does **not** run the
+git committer. Checksum verification, the exact resolution order, and how to pin
+a location are in [docs/releases.md](docs/releases.md).
+
 ## Quick start
 
 You need a working host Bluetooth stack (`systemctl status bluetooth`).
@@ -6619,6 +7553,8 @@ file you can look at. Needs the Rust toolchain and the D-Bus build headers
 It builds the collector, asks for `sudo` **once** up front (BlueZ needs root),
 and writes readings to `./data/readings/<date>.ndjson` — right in the repo,
 where you can `tail -f` or `jq` them. Press Ctrl-C to stop.
+
+(Prefer no build at all? Grab a [prebuilt binary](#prebuilt-binaries) instead.)
 
 ### Option B — the full containerised stack (collector + git committer)
 
@@ -6649,8 +7585,7 @@ Stop it with `./scripts/stop.sh`.
 
 **Why `sudo`?** The collector reaches Bluetooth by talking to the host's
 `bluetoothd` over the D-Bus system socket, and BlueZ's default policy only
-accepts calls from `root`. Running rootful satisfies that policy — and because
-rootless and rootful Podman use separate image stores, the images are built
+accepts calls from uid 0, so the collector runs as root; the images are built
 rootful too so the stack can find them. The scripts request `sudo` **once at the
 start** and keep the credential alive for the whole run, so you are not prompted
 partway through. The full explanation, the SELinux note (`label=disable`), and
@@ -6669,16 +7604,20 @@ equivalent CLI flags. Copy [`.env.example`](.env.example) to `.env` to start.
 | `INKBIRD_ADDRESS`           | *(empty)*           | Sensor Bluetooth address, e.g. `AA:BB:CC:DD:EE:FF`. **Recommended.** Empty → match by name (empty is *not* treated as an empty address filter). |
 | `INKBIRD_NAME_MATCH`        | `ith-13-b`          | Case-insensitive name substring used when no address is set.            |
 | `INKBIRD_MIN_INTERVAL_SECS` | `60`                | Minimum seconds between recorded readings for an *unchanged* sensor. Any change is always recorded. |
-| `INKBIRD_DATA_DIR`          | `/data` (container) | Directory readings are written under, *inside* the process (`<dir>/readings/*.ndjson`). The stack sets this to `/data`. |
+| `INKBIRD_DATA_DIR`          | *(container: `/data`)* | Directory readings are written under, *inside* the process (`<dir>/readings/*.ndjson`). The stack sets this to `/data`. **A standalone binary that leaves this unset resolves a default location** (see [Prebuilt binaries](#prebuilt-binaries)). |
 | `GIT_AUTHOR_NAME`           | `myinkbird`         | Author name for the committer's local commits.                          |
 | `GIT_AUTHOR_EMAIL`          | `myinkbird@localhost` | Author email for the committer's local commits.                       |
 | `COMMIT_INTERVAL_SECS`      | `300`               | How often the committer commits new readings (local only, never pushed).|
 
 ## The data
 
-Readings are appended, one JSON object per line, to per-day files on the **host**
-at `${INKBIRD_HOST_DATA_DIR:-./data}/readings/<YYYY-MM-DD>.ndjson` — a real
-directory you can browse. Example line:
+Readings are appended, one JSON object per line, to per-day files. In the
+container (and via `./scripts/collect-local.sh`) they land on the **host** at
+`${INKBIRD_HOST_DATA_DIR:-./data}/readings/<YYYY-MM-DD>.ndjson` — a real
+directory you can browse. (A standalone binary run outside the container writes
+to a per-user data directory instead of `./data`; see
+[Prebuilt binaries](#prebuilt-binaries) and
+[docs/releases.md](docs/releases.md).) Example line:
 
 ```json
 {"ts":"2026-07-08T21:03:44Z","address":"AA:BB:CC:DD:EE:FF","name":"ITH-13-B","model":"ITH-13-B","temperature_c":28.9,"humidity_pct":45.5,"battery_pct":100,"rssi_dbm":-61}
@@ -6732,13 +7671,14 @@ locally is exactly what CI runs.
 ./scripts/deny.sh          # supply-chain audit (licences, advisories)
 ./scripts/collect-local.sh # run the collector natively → ./data (no containers)
 ./scripts/logs.sh          # follow the running stack's logs
+./scripts/release-build.sh # build + package a downloadable binary → dist/
 ```
 
 You can also run the collector directly (outside a container) once built —
 handy for `discover` during development. Building `btleplug` needs a C compiler,
 `pkg-config`, and the D-Bus dev headers; `scripts/install-system-deps.sh`
 installs them. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup and
-conventions.
+conventions, and [docs/releases.md](docs/releases.md) for how releases are cut.
 
 `Cargo.lock` is committed, so the dependency graph (and the `cargo-deny`
 advisory check) is reproducible; keep it current with `cargo update`.
@@ -6750,6 +7690,8 @@ advisory check) is reproducible; keep it current with `cargo update`.
   rootful vs. rootless, SELinux, finding your sensor, and troubleshooting.
 - [docs/data-format.md](docs/data-format.md) — NDJSON schema, byte layout, and
   how to inspect the data.
+- [docs/releases.md](docs/releases.md) — prebuilt binaries: download, verify,
+  run, and where a standalone binary stores its data.
 - [docs/adr/](docs/adr/README.md) — Architecture Decision Records (the *why*).
 
 ## License
@@ -6770,6 +7712,8 @@ Ideas, explicitly not yet built:
   database / dashboard) — kept out by default so data stays local.
 - Support for additional INKBIRD models in `inkbird-core`.
 - A rootless path documented via a custom BlueZ D-Bus policy.
+- Prebuilt binaries for more targets (e.g. ARM Linux) beyond the three CI
+  platforms.
 
 Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -7140,15 +8084,15 @@ log "system dependencies installed"
   File name:             lib.sh
   Relative path:         scripts/lib.sh
   Absolute path:         /home/kushal/src/rust/myinkbird/scripts/lib.sh
-  Size:                  3.8 KiB (3988 bytes)
-  Last modified:         2026-07-09 09:50:32.000000000 -0400
-  Permissions:           -rwxr-xr-x
+  Size:                  4.6 KiB (4790 bytes)
+  Last modified:         2026-09-11 03:41:40.000000000 -0400
+  Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
-  Inode:                 20185146
+  Inode:                 63570417
   Hard links:            1
   MIME type:             text/x-shellscript
-  SHA-256:               25a328dbe5226f2e7a545763d336b87917f7fed7ddfd6357ca22353a6f322650
-  Last git commit:       0fa42c8 2026-07-09 06:02:43 -0400 add claude changes
+  SHA-256:               0ffd4e1499d5e966f44232c95b8c68c88251d3b13c7f35f97618208635e7d890
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
 #!/usr/bin/env bash
@@ -7256,6 +8200,31 @@ ensure_rust() {
     || die "Rust installed but cargo not on PATH; open a new shell or 'source ~/.cargo/env'"
 }
 
+# Print the workspace version from the root Cargo.toml ([workspace.package]).
+# Used to name release artifacts and derive the release tag.
+workspace_version() {
+  awk '
+    /^\[workspace\.package\]/ { inpkg = 1; next }
+    /^\[/                     { inpkg = 0 }
+    inpkg && /^[[:space:]]*version[[:space:]]*=/ {
+      gsub(/.*=[[:space:]]*"/, ""); gsub(/".*/, ""); print; exit
+    }
+  ' "$(repo_root)/Cargo.toml"
+}
+
+# Print the SHA-256 checksum of a file in `sha256sum -c`-compatible format,
+# portably: sha256sum on Linux, shasum on macOS, CertUtil-free.
+checksum_file() {
+  local f="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$f"
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$f"
+  else
+    die "no SHA-256 tool found (need sha256sum or shasum)"
+  fi
+}
+
 
 ################################################################################
 # FILE: scripts/lint.sh
@@ -7327,6 +8296,174 @@ elif command -v podman-compose >/dev/null 2>&1; then
 else
   die "no compose provider found"
 fi
+
+
+################################################################################
+# FILE: scripts/release-build.sh
+################################################################################
+
+--- METADATA ---
+  File name:             release-build.sh
+  Relative path:         scripts/release-build.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/release-build.sh
+  Size:                  2.4 KiB (2492 bytes)
+  Last modified:         2026-09-11 03:41:54.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570416
+  Hard links:            1
+  MIME type:             text/x-shellscript
+  SHA-256:               9a9668a404ff9984f6830d81598d3df39aec0b611f82ef547b7cd5d526e3da87
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+#!/usr/bin/env bash
+# Build a self-contained release binary of inkbird-collector for the HOST
+# platform, then package it (tar.gz) with a SHA-256 checksum into dist/.
+#
+# The same script runs locally and in CI. CI runs it on a Linux/macOS/Windows
+# matrix, so each run produces that platform's native binary. We build natively
+# rather than cross-compiling because btleplug uses a different Bluetooth backend
+# per platform (BlueZ/D-Bus on Linux, CoreBluetooth on macOS, WinRT on Windows),
+# which is impractical to cross-compile. See docs/adr/0011 and docs/releases.md.
+#
+# The resulting binary is self-contained (all Rust crates are linked in). On
+# Linux it still dynamically links the system C library and libdbus, both of
+# which are present on any desktop with Bluetooth; macOS and Windows need no
+# extra runtime libraries.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib.sh
+. "$HERE/lib.sh"
+cd "$(repo_root)"
+
+os="$(uname -s)"
+
+# On Linux, btleplug's backend links libdbus; install the build headers.
+# macOS (CoreBluetooth) and Windows (WinRT) need no extra system packages.
+case "$os" in
+  Linux) "$HERE/install-system-deps.sh" ;;
+  *)     : ;;
+esac
+
+ensure_rust
+
+version="${INKBIRD_VERSION:-${1:-$(workspace_version)}}"
+[ -n "$version" ] || die "could not determine the workspace version"
+
+triple="$(rustc -vV | sed -n 's/^host: //p')"
+[ -n "$triple" ] || die "could not determine the host target triple from rustc"
+
+log "building inkbird-collector ${version} for ${triple} (release)"
+cargo build --release -p inkbird-collector
+
+bin="inkbird-collector"
+ext=""
+case "$os" in
+  MINGW* | MSYS* | CYGWIN* | Windows_NT) ext=".exe" ;;
+esac
+built="target/release/${bin}${ext}"
+[ -f "$built" ] || die "expected build output not found: $built"
+
+dist="dist"
+mkdir -p "$dist"
+stem="${bin}-${version}-${triple}"
+archive="${dist}/${stem}.tar.gz"
+
+# Stage the binary (under its plain name) plus the licence and readme, so the
+# download is usable and carries the AGPL text.
+stage="$(mktemp -d)"
+trap 'rm -rf "$stage"' EXIT
+cp "$built" "${stage}/${bin}${ext}"
+cp LICENSE README.md "$stage/" 2>/dev/null || true
+
+log "packaging ${archive}"
+tar -czf "$archive" -C "$stage" .
+
+# Checksum sidecar next to the archive (path-relative so `sha256sum -c` works
+# from inside dist/).
+( cd "$dist" && checksum_file "$(basename "$archive")" > "$(basename "$archive").sha256" )
+
+log "release artifact ready:"
+log "  ${archive}"
+log "  ${archive}.sha256"
+
+
+################################################################################
+# FILE: scripts/release-publish.sh
+################################################################################
+
+--- METADATA ---
+  File name:             release-publish.sh
+  Relative path:         scripts/release-publish.sh
+  Absolute path:         /home/kushal/src/rust/myinkbird/scripts/release-publish.sh
+  Size:                  2.0 KiB (2150 bytes)
+  Last modified:         2026-09-11 03:42:06.000000000 -0400
+  Permissions:           -rw-r--r--
+  Owner:                 kushal:kushal
+  Inode:                 63570418
+  Hard links:            1
+  MIME type:             text/x-shellscript
+  SHA-256:               0b89a7660dbc0a773bd9031f769f651ec8b64e831770725cfb82b86fdfdf10af
+  Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
+
+--- CONTENT ---
+#!/usr/bin/env bash
+# Create (or update) a FULL GitHub release for the current commit and upload the
+# packaged binaries in dist/. Uses the GitHub CLI (`gh`), which is available on
+# GitHub runners and can also be used locally by a maintainer who has run
+# `gh auth login`.
+#
+# The release is a full release (NOT a pre-release) and is marked as "latest".
+# The tag is derived from the workspace version plus the CI run number, so each
+# push to main produces a unique release (e.g. v0.1.0-r42). See docs/releases.md
+# and docs/adr/0011.
+#
+# Environment:
+#   GH_TOKEN / GITHUB_TOKEN  auth for gh (CI sets this to the workflow token)
+#   RUN_NUMBER               unique per push; used in the tag (defaults to 0)
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib.sh
+. "$HERE/lib.sh"
+cd "$(repo_root)"
+
+command -v gh >/dev/null 2>&1 || die "GitHub CLI (gh) not found; install it or run from CI"
+
+version="$(workspace_version)"
+[ -n "$version" ] || die "could not determine the workspace version"
+run="${RUN_NUMBER:-${GITHUB_RUN_NUMBER:-0}}"
+tag="v${version}-r${run}"
+title="myinkbird ${version} (build ${run})"
+
+[ -d dist ] || die "no dist/ directory; run scripts/release-build.sh first"
+artifacts=()
+for f in dist/*; do
+  [ -e "$f" ] && artifacts+=("$f")
+done
+[ "${#artifacts[@]}" -gt 0 ] || die "dist/ is empty; nothing to upload"
+
+commit="${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || echo unknown)}"
+notes="$(cat <<EOF
+Automated release built from commit \`${commit}\` on push to \`main\`.
+
+Self-contained \`inkbird-collector\` binaries for Linux, macOS, and Windows,
+each with a SHA-256 checksum. See [docs/releases.md](docs/releases.md) for
+verification and usage, including where the binary stores its readings.
+EOF
+)"
+
+log "publishing full release ${tag} with ${#artifacts[@]} artifact(s)"
+if gh release view "$tag" >/dev/null 2>&1; then
+  log "release ${tag} exists; updating its assets"
+  gh release upload "$tag" "${artifacts[@]}" --clobber
+else
+  gh release create "$tag" "${artifacts[@]}" \
+    --title "$title" \
+    --notes "$notes" \
+    --latest
+fi
+log "release ${tag} published"
 
 
 ################################################################################
@@ -7459,10 +8596,10 @@ log "tests complete"
 ################################################################################
 # DUMP SUMMARY
 ################################################################################
-  Files dumped   : 56
-  Total size     : 231.6 KiB (237201 bytes)
+  Files dumped   : 63
+  Total size     : 270.3 KiB (276874 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-09-11T03:11:59-04:00
+  Completed at   : 2026-09-11T07:26:06-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
