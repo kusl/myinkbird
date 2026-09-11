@@ -2584,3 +2584,34 @@ Claude is AI and can make mistakes. Please double-check responses.
 90
 100
 100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+03
+22
+
+now that we have the development workflow working 
+the next step is to create a bash script to create executables for major desktop platforms -- linux, windows, mac os 
+a single binary file for each platform that includes all dependencies needed 
+the catch here is that when the executable writes the files, it should write to xdg compliant directory if possible 
+if not available for some reason it should then try to write the files in the current directory of the executable instead 
+if that is not possible we should notify the user and "print" the information on the screen 
+then when the bash script is done, 
+it should be hooked up to github releases 
+generating a full release not a pre release with each push 
+the github actions yaml should be as simple as possible defering to the bash script 
+so the same code runs in either environment 
+please update all documentation as needed 
+do not be overly verbose with code comments 
+
