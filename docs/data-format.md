@@ -27,6 +27,17 @@ If you run the collector directly during development (not in a container - e.g.
 via `./scripts/collect-local.sh`), the data directory defaults to `./data`
 relative to the repo root unless you set `INKBIRD_DATA_DIR`.
 
+If instead you run a **standalone [prebuilt binary](releases.md)** and set
+neither `--data-dir` nor `INKBIRD_DATA_DIR`, the binary resolves a per-user
+location: an XDG-style data directory (`~/.local/share/myinkbird` on Linux,
+`~/Library/Application Support/myinkbird` on macOS, `%APPDATA%\myinkbird` on
+Windows), falling back to the executable's own directory, and finally to
+printing readings on standard output if neither is writable. The `readings/`
+layout below is identical wherever the directory ends up; only the parent
+directory differs. A standalone binary writes the files but does not run the
+committer, so version-controlling them is up to you. See
+[docs/releases.md](releases.md) for the full resolution order.
+
 > The collector runs as root (rootful, for BlueZ), so the files under `./data`
 > are **root-owned** (world-readable). To run `git` against the data repo as
 > your normal user, mark it safe once with

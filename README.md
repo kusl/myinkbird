@@ -5,8 +5,9 @@ readings from an **INKBIRD ITH-13-B** Bluetooth thermo-hygrometer by *listening*
 to the advertisements it already broadcasts — never connecting to it — and
 stores those readings as NDJSON in a **local git repository** on your machine.
 
-Everything runs in containers via **Podman**. Nothing is installed on the host
-except the container engine (or, for the quick native path, the Rust toolchain).
+You can run it from a **prebuilt binary** (nothing to install), as a
+containerised stack via **Podman**, or straight from source with the Rust
+toolchain.
 
 > **Primary design goal: add zero extra battery drain to the sensor.** The
 > ITH-13-B runs on two AAA cells and broadcasts its readings over Bluetooth Low
@@ -18,6 +19,7 @@ except the container engine (or, for the quick native path, the Rust toolchain).
 - [How it's built with AI assistance (please read)](#how-its-built-with-ai-assistance-please-read)
 - [Hardware](#hardware)
 - [How it works](#how-it-works)
+- [Prebuilt binaries](#prebuilt-binaries)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [The data](#the-data)
@@ -59,7 +61,8 @@ build on this project, please carry a similar disclosure forward.
   Low Energy.
 - **Host:** developed against Fedora on an Acer Swift Go 14 (AMD Ryzen 8845HS),
   but nothing is machine-specific: any Linux host with a Bluetooth adapter,
-  a running `bluetoothd`, and Podman should work.
+  a running `bluetoothd`, and Podman should work. The prebuilt binaries also run
+  on macOS and Windows.
 
 The collector identifies the sensor by its Bluetooth address (recommended) or by
 a substring of its advertised name (`ith-13-b` by default).
@@ -109,6 +112,34 @@ Two crates and two containers:
 
 See [docs/architecture.md](docs/architecture.md) for the full picture.
 
+## Prebuilt binaries
+
+Every push to `main` publishes a **full** GitHub release with a self-contained
+`inkbird-collector` binary for **Linux, macOS, and Windows** — the
+no-toolchain, no-container way to run the collector. Download the archive for
+your platform from the
+[latest release](https://github.com/kusl/myinkbird/releases/latest), verify its
+checksum, unpack it, and run:
+
+```bash
+./inkbird-collector discover --seconds 30            # find your sensor
+./inkbird-collector collect --address AA:BB:CC:DD:EE:FF
+```
+
+These binaries are the same listen-only program as the container build, so the
+battery guarantee is unchanged. On Linux they still need a running `bluetoothd`
+and `libdbus`, and usually `sudo` (see [docs/bluetooth.md](docs/bluetooth.md));
+macOS uses CoreBluetooth and Windows uses WinRT, needing no extra libraries.
+
+**Where a standalone binary stores readings.** With no `--data-dir` /
+`INKBIRD_DATA_DIR` set, it writes to an XDG-style per-user directory
+(`~/.local/share/myinkbird` on Linux, `~/Library/Application Support/myinkbird`
+on macOS, `%APPDATA%\myinkbird` on Windows), falling back to the executable's
+own directory, and finally to printing readings on screen if neither is
+writable. A standalone binary writes the NDJSON files but does **not** run the
+git committer. Checksum verification, the exact resolution order, and how to pin
+a location are in [docs/releases.md](docs/releases.md).
+
 ## Quick start
 
 You need a working host Bluetooth stack (`systemctl status bluetooth`).
@@ -126,6 +157,8 @@ file you can look at. Needs the Rust toolchain and the D-Bus build headers
 It builds the collector, asks for `sudo` **once** up front (BlueZ needs root),
 and writes readings to `./data/readings/<date>.ndjson` — right in the repo,
 where you can `tail -f` or `jq` them. Press Ctrl-C to stop.
+
+(Prefer no build at all? Grab a [prebuilt binary](#prebuilt-binaries) instead.)
 
 ### Option B — the full containerised stack (collector + git committer)
 
@@ -156,8 +189,7 @@ Stop it with `./scripts/stop.sh`.
 
 **Why `sudo`?** The collector reaches Bluetooth by talking to the host's
 `bluetoothd` over the D-Bus system socket, and BlueZ's default policy only
-accepts calls from `root`. Running rootful satisfies that policy — and because
-rootless and rootful Podman use separate image stores, the images are built
+accepts calls from uid 0, so the collector runs as root; the images are built
 rootful too so the stack can find them. The scripts request `sudo` **once at the
 start** and keep the credential alive for the whole run, so you are not prompted
 partway through. The full explanation, the SELinux note (`label=disable`), and
@@ -176,16 +208,20 @@ equivalent CLI flags. Copy [`.env.example`](.env.example) to `.env` to start.
 | `INKBIRD_ADDRESS`           | *(empty)*           | Sensor Bluetooth address, e.g. `AA:BB:CC:DD:EE:FF`. **Recommended.** Empty → match by name (empty is *not* treated as an empty address filter). |
 | `INKBIRD_NAME_MATCH`        | `ith-13-b`          | Case-insensitive name substring used when no address is set.            |
 | `INKBIRD_MIN_INTERVAL_SECS` | `60`                | Minimum seconds between recorded readings for an *unchanged* sensor. Any change is always recorded. |
-| `INKBIRD_DATA_DIR`          | `/data` (container) | Directory readings are written under, *inside* the process (`<dir>/readings/*.ndjson`). The stack sets this to `/data`. |
+| `INKBIRD_DATA_DIR`          | *(container: `/data`)* | Directory readings are written under, *inside* the process (`<dir>/readings/*.ndjson`). The stack sets this to `/data`. **A standalone binary that leaves this unset resolves a default location** (see [Prebuilt binaries](#prebuilt-binaries)). |
 | `GIT_AUTHOR_NAME`           | `myinkbird`         | Author name for the committer's local commits.                          |
 | `GIT_AUTHOR_EMAIL`          | `myinkbird@localhost` | Author email for the committer's local commits.                       |
 | `COMMIT_INTERVAL_SECS`      | `300`               | How often the committer commits new readings (local only, never pushed).|
 
 ## The data
 
-Readings are appended, one JSON object per line, to per-day files on the **host**
-at `${INKBIRD_HOST_DATA_DIR:-./data}/readings/<YYYY-MM-DD>.ndjson` — a real
-directory you can browse. Example line:
+Readings are appended, one JSON object per line, to per-day files. In the
+container (and via `./scripts/collect-local.sh`) they land on the **host** at
+`${INKBIRD_HOST_DATA_DIR:-./data}/readings/<YYYY-MM-DD>.ndjson` — a real
+directory you can browse. (A standalone binary run outside the container writes
+to a per-user data directory instead of `./data`; see
+[Prebuilt binaries](#prebuilt-binaries) and
+[docs/releases.md](docs/releases.md).) Example line:
 
 ```json
 {"ts":"2026-07-08T21:03:44Z","address":"AA:BB:CC:DD:EE:FF","name":"ITH-13-B","model":"ITH-13-B","temperature_c":28.9,"humidity_pct":45.5,"battery_pct":100,"rssi_dbm":-61}
@@ -239,13 +275,14 @@ locally is exactly what CI runs.
 ./scripts/deny.sh          # supply-chain audit (licences, advisories)
 ./scripts/collect-local.sh # run the collector natively → ./data (no containers)
 ./scripts/logs.sh          # follow the running stack's logs
+./scripts/release-build.sh # build + package a downloadable binary → dist/
 ```
 
 You can also run the collector directly (outside a container) once built —
 handy for `discover` during development. Building `btleplug` needs a C compiler,
 `pkg-config`, and the D-Bus dev headers; `scripts/install-system-deps.sh`
 installs them. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup and
-conventions.
+conventions, and [docs/releases.md](docs/releases.md) for how releases are cut.
 
 `Cargo.lock` is committed, so the dependency graph (and the `cargo-deny`
 advisory check) is reproducible; keep it current with `cargo update`.
@@ -257,6 +294,8 @@ advisory check) is reproducible; keep it current with `cargo update`.
   rootful vs. rootless, SELinux, finding your sensor, and troubleshooting.
 - [docs/data-format.md](docs/data-format.md) — NDJSON schema, byte layout, and
   how to inspect the data.
+- [docs/releases.md](docs/releases.md) — prebuilt binaries: download, verify,
+  run, and where a standalone binary stores its data.
 - [docs/adr/](docs/adr/README.md) — Architecture Decision Records (the *why*).
 
 ## License
@@ -277,5 +316,7 @@ Ideas, explicitly not yet built:
   database / dashboard) — kept out by default so data stays local.
 - Support for additional INKBIRD models in `inkbird-core`.
 - A rootless path documented via a custom BlueZ D-Bus policy.
+- Prebuilt binaries for more targets (e.g. ARM Linux) beyond the three CI
+  platforms.
 
 Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).

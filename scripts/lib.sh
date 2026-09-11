@@ -102,3 +102,28 @@ ensure_rust() {
   command -v cargo >/dev/null 2>&1 \
     || die "Rust installed but cargo not on PATH; open a new shell or 'source ~/.cargo/env'"
 }
+
+# Print the workspace version from the root Cargo.toml ([workspace.package]).
+# Used to name release artifacts and derive the release tag.
+workspace_version() {
+  awk '
+    /^\[workspace\.package\]/ { inpkg = 1; next }
+    /^\[/                     { inpkg = 0 }
+    inpkg && /^[[:space:]]*version[[:space:]]*=/ {
+      gsub(/.*=[[:space:]]*"/, ""); gsub(/".*/, ""); print; exit
+    }
+  ' "$(repo_root)/Cargo.toml"
+}
+
+# Print the SHA-256 checksum of a file in `sha256sum -c`-compatible format,
+# portably: sha256sum on Linux, shasum on macOS, CertUtil-free.
+checksum_file() {
+  local f="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$f"
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$f"
+  else
+    die "no SHA-256 tool found (need sha256sum or shasum)"
+  fi
+}

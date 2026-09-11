@@ -40,7 +40,12 @@ The runnable program. Responsibilities are split across small modules:
   `Config` (data directory, optional address filter, name-match substring,
   throttle interval). An empty address filter (e.g. an unset `INKBIRD_ADDRESS`
   that compose passes as `""`) is normalised to "no filter", so the collector
-  falls back to name matching instead of matching nothing.
+  falls back to name matching instead of matching nothing. An empty
+  `INKBIRD_DATA_DIR` is likewise treated as "unset".
+- `data_dir` - resolves the *default* data directory when none was given (no
+  `--data-dir` / `INKBIRD_DATA_DIR`): an XDG-style per-user directory, then the
+  directory containing the executable, then a stdout fallback. It is pure (the
+  environment and executable path are passed in) and unit-tested.
 - `throttle` - suppresses duplicate readings from an unchanged sensor while
   always recording any real change. Pure and time-injected, so it is fully
   unit-testable.
@@ -48,6 +53,8 @@ The runnable program. Responsibilities are split across small modules:
   on the abstraction, tests substitute an in-memory `VecSink`.
 - `ndjson_sink` - the production `ReadingSink`; appends one JSON object per line
   to per-day files.
+- `stdout_sink` - a `ReadingSink` that prints NDJSON to standard output; the
+  last-resort fallback when no data directory is writable.
 - `record` - the on-disk record shape (`StoredReading`) and its serialization.
 - `shutdown` - resolves on Ctrl-C or SIGTERM so the scan stops cleanly when
   `podman stop` is issued.
@@ -79,6 +86,22 @@ is bind-mounted at `/data` in both containers. The collector writes NDJSON into
 it; the committer commits it. Because it is a real host directory (not an
 opaque named volume), you can browse the NDJSON files and their git history
 directly. This is the only thing the two containers share.
+
+### Where readings are written (container vs standalone)
+
+The scanner is agnostic about storage - it only sees a `ReadingSink`. `main`
+picks the concrete sink:
+
+- **In the container**, `INKBIRD_DATA_DIR=/data` is set explicitly, so `main`
+  uses an `NdjsonSink` rooted there (the shared host bind mount above).
+- **As a standalone binary** (a [prebuilt release](releases.md) run directly),
+  usually nothing sets a data directory. `main` then walks the `data_dir`
+  candidates in order, probing each by trying to create its `readings/`
+  subdirectory, and uses the first that works: an XDG-style per-user directory,
+  else the executable's own directory. If neither is writable it falls back to
+  the `stdout_sink`, so readings are still visible. A standalone binary writes
+  the files but does not run the committer; version-controlling them is left to
+  the user (or to the container stack).
 
 ## Data flow
 
@@ -137,7 +160,8 @@ Step by step:
    changed value, or enough time elapsed).
 7. `NdjsonSink` appends the record as one line to
    `/data/readings/<YYYY-MM-DD>.ndjson` - which is `./data/readings/...` on the
-   host.
+   host. (A standalone binary writes to its resolved data directory instead;
+   see "Where readings are written" above.)
 8. On its own schedule, the committer stages and commits new lines to the local
    git repository in `/data`. Nothing is ever pushed.
 
@@ -145,8 +169,9 @@ Step by step:
 
 - `inkbird-collector` depends on `inkbird-core`, never the reverse.
 - Within the collector, `scanner` depends on the `ReadingSink` *trait*, not on
-  `NdjsonSink` directly. The concrete sink is injected in `main`. This keeps the
-  hardware-facing code and the storage code independently testable.
+  `NdjsonSink` directly. `main` selects the concrete sink (`NdjsonSink`, or the
+  `StdoutSink` fallback) based on configuration and directory writability. This
+  keeps the hardware-facing code and the storage code independently testable.
 - The two containers communicate only through files in the shared host
   directory; there is no network link between them.
 

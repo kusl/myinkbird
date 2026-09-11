@@ -10,8 +10,14 @@ use clap::Parser;
 #[derive(Debug, Clone, Parser)]
 pub struct CollectArgs {
     /// Directory the readings are written under (`<dir>/readings/*.ndjson`).
-    #[arg(long, env = "INKBIRD_DATA_DIR", default_value = "./data")]
-    pub data_dir: PathBuf,
+    ///
+    /// When left unset (no `--data-dir` and no `INKBIRD_DATA_DIR`), the binary
+    /// picks a default: an XDG-style per-user data directory, then the
+    /// executable's own directory, and finally - if neither is writable - it
+    /// prints readings to standard output. The container sets this to `/data`.
+    /// See the `data_dir` module.
+    #[arg(long, env = "INKBIRD_DATA_DIR")]
+    pub data_dir: Option<PathBuf>,
 
     /// Only record advertisements from this Bluetooth address
     /// (e.g. `AA:BB:CC:DD:EE:FF`). Recommended - it is the most reliable way
@@ -35,8 +41,9 @@ pub struct CollectArgs {
 /// Resolved, validated configuration for a collection run.
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// Directory readings are written under.
-    pub data_dir: PathBuf,
+    /// Directory readings are written under, if set explicitly. `None` means
+    /// "resolve a default location" (see the `data_dir` module).
+    pub data_dir: Option<PathBuf>,
     /// Optional exact Bluetooth-address filter.
     pub address: Option<String>,
     /// Case-insensitive local-name substring used when no address is set.
@@ -48,7 +55,11 @@ pub struct Config {
 impl From<CollectArgs> for Config {
     fn from(args: CollectArgs) -> Self {
         Self {
-            data_dir: args.data_dir,
+            // An empty value means "not set", so the caller resolves a default.
+            // This matters because clap turns an empty `INKBIRD_DATA_DIR` env
+            // value into `Some("")`, which would otherwise become a data dir of
+            // `./readings` relative to the current directory.
+            data_dir: args.data_dir.filter(|p| !p.as_os_str().is_empty()),
             // Normalise the address once so comparisons are case-insensitive.
             //
             // An empty or whitespace-only value means "no address filter", so
@@ -92,7 +103,7 @@ mod tests {
 
     fn args() -> CollectArgs {
         CollectArgs {
-            data_dir: PathBuf::from("/data"),
+            data_dir: Some(PathBuf::from("/data")),
             address: Some("aa:bb:cc:dd:ee:ff".to_string()),
             name_match: "ITH-13-B".to_string(),
             min_interval_secs: 120,
@@ -115,6 +126,29 @@ mod tests {
     fn interval_is_seconds() {
         let cfg = Config::from(args());
         assert_eq!(cfg.min_interval, Duration::from_secs(120));
+    }
+
+    #[test]
+    fn explicit_data_dir_is_preserved() {
+        let cfg = Config::from(args());
+        assert_eq!(cfg.data_dir, Some(PathBuf::from("/data")));
+    }
+
+    #[test]
+    fn empty_data_dir_is_treated_as_unset() {
+        // clap turns an empty INKBIRD_DATA_DIR env value into Some("").
+        let mut a = args();
+        a.data_dir = Some(PathBuf::new());
+        let cfg = Config::from(a);
+        assert_eq!(cfg.data_dir, None);
+    }
+
+    #[test]
+    fn missing_data_dir_is_none() {
+        let mut a = args();
+        a.data_dir = None;
+        let cfg = Config::from(a);
+        assert_eq!(cfg.data_dir, None);
     }
 
     #[test]

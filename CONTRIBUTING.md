@@ -45,6 +45,8 @@ for the whole run.
 | `scripts/logs.sh`             | Follow the running stack's logs (rootful)                 |
 | `scripts/stop.sh`             | Stop and remove the stack                                 |
 | `scripts/collect-local.sh`    | Run the collector natively (no containers) → `./data`     |
+| `scripts/release-build.sh`    | Build + package a downloadable binary for the host → `dist/` |
+| `scripts/release-publish.sh`  | Create/update a full GitHub release and upload `dist/*` (via `gh`) |
 
 Before opening a PR, please run:
 
@@ -61,8 +63,8 @@ or simply `./scripts/ci.sh` to run the same sequence CI does.
 ```
 crates/inkbird-core/       pure decoder library (no I/O, heavily unit-tested)
 crates/inkbird-collector/  BLE listener + NDJSON writer binary
-scripts/                   all build/test/run logic
-docs/                      architecture, bluetooth, data-format, and ADRs
+scripts/                   all build/test/run/release logic
+docs/                      architecture, bluetooth, data-format, releases, ADRs
 Containerfile*             OCI image recipes (vendor-neutral naming)
 compose.yaml               Compose Spec wiring the two services
 ```
@@ -82,7 +84,9 @@ compose.yaml               Compose Spec wiring the two services
   `cargo clippy -D warnings`.
 - **Tests.** Add tests for new logic; prefer pure, hardware-free tests. The
   existing tests inject time (`Instant`) and use `tempfile` directories rather
-  than touching real global state.
+  than touching real global state. Path-resolution logic (e.g. the collector's
+  `data_dir` module) takes the environment and executable path as arguments so
+  it can be tested without touching the real environment or filesystem.
 
 ## Dependencies and licensing
 
@@ -103,6 +107,18 @@ Please keep the tooling vendor-neutral: use **Podman**, name image recipes
 **`Containerfile`** (the vendor-neutral OCI name), and do not add a `build:`
 section to `compose.yaml` (images are built by `scripts/container-build.sh`).
 See [ADR 0004](docs/adr/0004-podman-and-containerfile-only.md).
+
+## Releases
+
+Releases are automated: every push to `main` runs
+`.github/workflows/release.yml`, which builds a self-contained
+`inkbird-collector` binary on a Linux/macOS/Windows matrix and publishes a
+**full** GitHub release (not a pre-release). All the real work is in
+`scripts/release-build.sh` (build + package) and `scripts/release-publish.sh`
+(create the release and upload), so you can reproduce a build locally with
+`./scripts/release-build.sh`. See
+[ADR 0011](docs/adr/0011-prebuilt-release-binaries.md) and
+[docs/releases.md](docs/releases.md).
 
 ## Documentation and decisions
 

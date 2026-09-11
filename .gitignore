@@ -2,6 +2,9 @@
 /target
 **/*.rs.bk
 
+# Release artifacts produced by scripts/release-build.sh
+/dist
+
 # Cargo lock is committed for the binary workspace (kept, not ignored).
 
 # Local data produced by a non-container run of the collector

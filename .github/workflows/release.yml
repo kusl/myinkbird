@@ -1,0 +1,74 @@
+# Release workflow. Like the CI workflow (see docs/adr/0008), this stays slim:
+# it checks out, restores a cache, and calls bash scripts that hold all the real
+# logic, so the exact same build runs locally (./scripts/release-build.sh).
+#
+# A native build matrix (Linux/macOS/Windows) produces one self-contained
+# inkbird-collector binary per platform - built natively because btleplug uses a
+# different Bluetooth backend on each OS. A final job publishes a single FULL
+# GitHub release (not a pre-release) per push to main. See docs/adr/0011.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# The build jobs only read the repo; the publish job needs write to create the
+# release and its tag.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  # Do not cancel an in-progress publish.
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: release-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: release-${{ runner.os }}-
+      # Rust is preinstalled on GitHub runners; scripts/lib.sh (ensure_rust)
+      # uses it and, if ever absent, installs it - so no toolchain action here,
+      # matching the slim CI workflow.
+      - name: Build and package
+        shell: bash
+        run: bash scripts/release-build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: publish full release
+    needs: build
+    runs-on: ubuntu-latest
+    # Only this job writes (creates the release + tag).
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: bash scripts/release-publish.sh

@@ -1,4 +1,4 @@
-//! An [`ReadingSink`] that appends readings to per-day NDJSON files.
+//! A [`ReadingSink`] that appends readings to per-day NDJSON files.
 //!
 //! Files live under `<data_dir>/readings/<YYYY-MM-DD>.ndjson`, one JSON object
 //! per line. NDJSON is append-friendly, human-readable, and produces clean
@@ -27,6 +27,20 @@ impl NdjsonSink {
         Self {
             readings_dir: data_dir.as_ref().join("readings"),
         }
+    }
+
+    /// Create a sink rooted at `data_dir`, eagerly creating the `readings/`
+    /// directory so a permission or path problem surfaces now rather than on the
+    /// first write. Used to probe whether a candidate data directory is usable.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the `readings/` directory cannot be created.
+    pub fn create_in(data_dir: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let sink = Self::new(data_dir);
+        fs::create_dir_all(&sink.readings_dir)
+            .with_context(|| format!("creating readings dir {}", sink.readings_dir.display()))?;
+        Ok(sink)
     }
 
     /// Absolute path of the file a reading with this date key would land in.
@@ -119,5 +133,17 @@ mod tests {
         let path = dir.path().join("readings/2026-07-08.ndjson");
         let contents = fs::read_to_string(&path).unwrap();
         assert_eq!(contents.lines().count(), 2);
+    }
+
+    #[test]
+    fn create_in_makes_readings_dir_up_front() {
+        let dir = tempdir().unwrap();
+        let sink = NdjsonSink::create_in(dir.path()).unwrap();
+        // The readings directory exists even before any reading is recorded.
+        assert!(dir.path().join("readings").is_dir());
+        // And it is usable.
+        let mut sink = sink;
+        sink.record(&reading_on("2026-07-08", 20.0)).unwrap();
+        assert!(dir.path().join("readings/2026-07-08.ndjson").exists());
     }
 }

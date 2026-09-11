@@ -7,20 +7,25 @@
 //!     you find your sensor's Bluetooth address and confirm its byte layout.
 
 mod config;
+mod data_dir;
 mod ndjson_sink;
 mod record;
 mod scanner;
 mod shutdown;
 mod sink;
+mod stdout_sink;
 mod throttle;
 
 use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
-use tracing::info;
+use tracing::{info, warn};
 use tracing_subscriber::EnvFilter;
 
 use crate::config::{CollectArgs, Config};
+use crate::data_dir::{DataDirCandidate, default_data_dir_candidates};
 use crate::ndjson_sink::NdjsonSink;
+use crate::sink::ReadingSink;
+use crate::stdout_sink::StdoutSink;
 
 /// Passive BLE collector for the INKBIRD ITH-13-B thermo-hygrometer.
 #[derive(Debug, Parser)]
@@ -65,13 +70,59 @@ async fn main() -> Result<()> {
     }
 }
 
-/// Wire up the NDJSON sink and run the collection loop.
+/// Wire up a sink and run the collection loop.
 async fn run_collect(args: CollectArgs) -> Result<()> {
     let config = Config::from(args);
-    info!(data_dir = %config.data_dir.display(), "starting collector");
+    info!("starting collector (listen-only)");
     let central = scanner::get_central().await?;
-    let mut sink = NdjsonSink::new(&config.data_dir);
-    scanner::run_collect(&central, &config, &mut sink).await
+    let mut sink = open_sink(&config);
+    scanner::run_collect(&central, &config, &mut *sink).await
+}
+
+/// Choose where readings go, following the resolution order in the `data_dir`
+/// module.
+///
+/// When the data directory was given explicitly (`--data-dir` /
+/// `INKBIRD_DATA_DIR`, as the container sets), honour it. Otherwise try an
+/// XDG-style per-user directory, then the executable's own directory, and
+/// finally fall back to printing readings to standard output so they are at
+/// least visible rather than silently lost.
+fn open_sink(config: &Config) -> Box<dyn ReadingSink> {
+    if let Some(dir) = &config.data_dir {
+        // Explicit choice: use it as-is. NdjsonSink creates the directory on the
+        // first write and surfaces any error there.
+        info!(
+            data_dir = %dir.display(),
+            "writing readings to the configured data directory"
+        );
+        return Box::new(NdjsonSink::new(dir));
+    }
+
+    for DataDirCandidate { path, source } in default_data_dir_candidates() {
+        match NdjsonSink::create_in(&path) {
+            Ok(sink) => {
+                info!(
+                    source = source.label(),
+                    "writing readings to {}",
+                    path.join("readings").display()
+                );
+                return Box::new(sink);
+            }
+            Err(error) => warn!(
+                candidate = %path.display(),
+                source = source.label(),
+                %error,
+                "cannot use this data directory; trying the next option"
+            ),
+        }
+    }
+
+    warn!(
+        "no writable data directory found (tried an XDG-style per-user directory \
+         and the executable's own directory); printing readings to standard \
+         output instead. Set INKBIRD_DATA_DIR to choose a writable location."
+    );
+    Box::new(StdoutSink::new())
 }
 
 /// Initialise tracing/logging. Honours `RUST_LOG`; defaults to `info`.

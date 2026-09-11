@@ -35,3 +35,4 @@ original ADR write-up and the MADR template. For background see
 | [0008](0008-slim-ci-delegating-to-bash.md)                 | Slim CI that delegates to bash scripts            | Accepted |
 | [0009](0009-always-latest-dependencies.md)                 | Track the latest toolchain and dependencies       | Accepted |
 | [0010](0010-build-images-rootful.md)                       | Build the container images rootful                | Accepted |
+| [0011](0011-prebuilt-release-binaries.md)                  | Ship prebuilt cross-platform binaries via Releases| Accepted |
