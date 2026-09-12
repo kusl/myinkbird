@@ -7,7 +7,7 @@
 
 DUMP METADATA
 ═════════════════════════════════════════════════════════════════════════════════
-  Generated at   : 2026-09-11T07:26:04-04:00
+  Generated at   : 2026-09-12T17:07:39-04:00
   Generator      : export.sh
   Host           : fedora
   User           : kushal
@@ -17,10 +17,10 @@ REPOSITORY METADATA
 ═════════════════════════════════════════════════════════════════════════════════
   Repository root: /home/kushal/src/rust/myinkbird
   Branch         : main
-  Commit (full)  : f5d335fbfdd8ca71d519dc6c3e0840390aa5ae5d
-  Commit (short) : f5d335f
-  Commit date    : 2026-09-11 07:25:52 -0400
-  Commit message : add claude response
+  Commit (full)  : 17dc79ff2008743abee5622cd8bc8b0a571f21c1
+  Commit (short) : 17dc79f
+  Commit date    : 2026-09-11 07:41:50 -0400
+  Commit message : run scripts
   Remote origin  : git@github.com:kusl/myinkbird.git
   Files included : 63
   Excluded path  : docs/llm/
@@ -28,6 +28,7 @@ REPOSITORY METADATA
 
 GIT WORKING TREE STATUS (first 20 lines)
 ═════════════════════════════════════════════════════════════════════════════════
+ M .github/workflows/release.yml
  M docs/llm/vendor/output.txt
 
 ################################################################################
@@ -6995,13 +6996,13 @@ jobs:
   Relative path:         .github/workflows/release.yml
   Absolute path:         /home/kushal/src/rust/myinkbird/.github/workflows/release.yml
   Size:                  2.2 KiB (2334 bytes)
-  Last modified:         2026-09-11 03:42:41.000000000 -0400
+  Last modified:         2026-09-12 17:06:53.967582614 -0400
   Permissions:           -rw-r--r--
   Owner:                 kushal:kushal
   Inode:                 63570395
   Hard links:            1
   MIME type:             text/plain
-  SHA-256:               d9a0a21d4316343bd6a46df73e0d1dfb49518f2d8e35832faccef2590b76ecfa
+  SHA-256:               63e1d7c7c311b430921452c8c129bd16b4ea66cc0b5b4f685254445a45509b60
   Last git commit:       f5d335f 2026-09-11 07:25:52 -0400 add claude response
 
 --- CONTENT ---
@@ -7054,7 +7055,7 @@ jobs:
       - name: Build and package
         shell: bash
         run: bash scripts/release-build.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-${{ matrix.os }}
           path: dist/*
@@ -8599,7 +8600,7 @@ log "tests complete"
   Files dumped   : 63
   Total size     : 270.3 KiB (276874 bytes)
   Output file    : /home/kushal/src/rust/myinkbird/docs/llm/dump.txt
-  Completed at   : 2026-09-11T07:26:06-04:00
+  Completed at   : 2026-09-12T17:07:40-04:00
 ################################################################################
 # END OF DUMP
 ################################################################################
